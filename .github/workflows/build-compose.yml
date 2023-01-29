@@ -6,15 +6,20 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: NanoPi-R5S-R5C-docker
+name: build-compose
 
 on:
   repository_dispatch:
   workflow_dispatch:
-  #schedule:
-    #- cron: 0 17 * * *
-  # watch:
-  #   types: started
+    inputs:
+      use_machine:
+        description: 'Machine'
+        required: true
+        default: 10900T
+        type: choice
+        options:
+        - 10900T
+        - mint
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
