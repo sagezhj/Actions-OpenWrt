@@ -19,7 +19,7 @@ on:
         type: choice
         options:
         - 10900T
-        - mint
+        - 10850K
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
