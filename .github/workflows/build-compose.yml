@@ -302,7 +302,7 @@ jobs:
           echo "RELEASE_TAG=$(date +"%Y.%m.%d")-Lean1" >> $GITHUB_OUTPUT
           echo "RELEASE_DATA=$(date +"%Y.%m.%d")" >> $GITHUB_OUTPUT
           touch release.txt
-          echo "后台地址：192.168.11.1
+          echo "后台地址：192.168.2.1
                 默认密码：password
                 docker = 带docker" >> release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
@@ -329,7 +329,7 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-          name: ${{ needs.compile-package.outputs.RELEASE_DATE }} NanoPi-R4S-R4SE-linux.5.4_固件下载
+          name: ${{ needs.compile-package.outputs.RELEASE_DATE }} NanoPi-R5C-linux-6.1_固件下载
           tag_name: ${{ needs.compile-package.outputs.RELEASE_TAG }}
           body_path: release.txt
           files: ${{ needs.compile-package.outputs.FIRMWARE }}/*
