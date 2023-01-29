@@ -1,16 +1,17 @@
-#=================================================
-# https://github.com/P3TERX/Actions-OpenWrt
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
-
-name: NanoPi-R5S-R5C-docker
+name: build
 
 on:
   repository_dispatch:
   workflow_dispatch:
+    inputs:
+      use_machine:
+        description: 'Machine'
+        required: true
+        default: 10900T
+        type: choice
+        options:
+        - 10900T
+        - mint
   #schedule:
     #- cron: 0 17 * * *
   # watch:
@@ -18,28 +19,25 @@ on:
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
-  REPO_BRANCH: tast
+  REPO_BRANCH: stable
   CONFIG_FILE: configs/lean/lean_docker.config
   DIY_SH: scripts/lean.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  IMAGE: ${{ vars.IMAGE }}
 
 jobs:
-  Build:
-    runs-on: self-hosted
+
+  compile-init:
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    timeout-minutes: 1440
+
     outputs:
-      OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
-      PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
-      TARGET: ${{ steps.compile.outputs.TARGET }}
-      SUBTARGET: ${{ steps.compile.outputs.SUBTARGET }}
-      FIRMWARE: ${{ steps.compile.outputs.FIRMWARE }}
-      GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
+      OPENWRTROOT: ${{ steps.clean.outputs.OPENWRTROOT }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
+  
     - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -52,59 +50,99 @@ jobs:
         [ -f /etc/issue.net ] && cat /etc/issue.net
         [ -f /etc/issue ] && cat /etc/issue
         ulimit -a
-        
-    - name: Clone Source Code
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Pull Image
       run: |
-        df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
-        cd openwrt
-        
-    - name: Update Feeds
-      id: update
+        docker pull $IMAGE
+        docker images
+    
+    - name: Copy Files
+      id: copy
+      run: |
+        if [[ -f openwrt.tar.zst ]]; then
+            rm openwrt.tar.zst
+        fi
+        ID="$(docker create --name openwrt "$IMAGE")"
+        docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
+        docker rm $ID
+        docker ps -a
+        ls -alh
+
+    - name: Decompression
+      run: | 
+        if [[ -d openwrt ]]; then
+            rm -rf ./openwrt
+        fi
+        tar -xf openwrt.tar.zst
+        ls -alh ./openwrt
+        rm openwrt.tar.zst
+      
+    - name: Clean
+      id: clean
       run: |
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        mkdir customfeeds
-        git clone --depth=1 https://github.com/DHDAXCW/packages customfeeds/packages
-        git clone --depth=1 https://github.com/DHDAXCW/luci customfeeds/luci
+        rm -rf ./tmp && rm -rf ./build_dir
+    
+    - name: Feeds Settings
+      run: | 
+        cd $OPENWRTROOT
         chmod +x ../scripts/*.sh
-        ../scripts/hook-feeds.sh
-    - name: Install Feeds
-      run: |
-        cd $OPENWRTROOT
-        ./scripts/feeds install -a
-        
-    - name: Load Custom Configuration
-      run: |
-        [ -e files ] && mv files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
-        chmod +x scripts/*.sh
-        cd $OPENWRTROOT
-        ../$DIY_SH
-        ../scripts/preset-clash-core.sh arm64
-        ../scripts/preset-terminal-tools.sh
+        ../scripts/feeds_settings.sh
         make defconfig
-        
-    - name: Download Package
-      id: package
+
+    - name: Show config
       run: |
         cd $OPENWRTROOT
         cat .config
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
+
+  compile-toolchain:
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    timeout-minutes: 1440
+    needs: [compile-init]
+
+    steps:
+    - name: Compile toolchain
+      id: compile
+      run: | 
+        cd ${{ needs.compile-init.outputs.OPENWRTROOT }}
+        echo -e "$(nproc) thread compile"
+        make tools/compile -j$(nproc)
+        make toolchain/compile -j$(nproc)
   
-    - name: Compile Packages
+  compile-package:
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    timeout-minutes: 1440
+    needs: [compile-init, compile-toolchain]
+
+    outputs:
+      OPENWRTROOT: ${{ steps.compile.outputs.OPENWRTROOT }}
+      PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
+      TARGET: ${{ steps.compile.outputs.TARGET }}
+      SUBTARGET: ${{ steps.compile.outputs.SUBTARGET }}
+      FIRMWARE: ${{ steps.compile.outputs.FIRMWARE }}
+      GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
+      RELEASE_DATE: ${{ steps.tag.outputs.RELEASE_DATE }}
+      RELEASE_TAG: ${{ steps.tag.outputs.RELEASE_TAG }}
+      RELEASE_SUCCESS: ${{ steps.tag.outputs.RELEASE_SUCCESS }}
+
+    steps:
+
+    - name: Compile package
       id: compile
       run: |
-        cd $OPENWRTROOT
+        cd ${{ needs.compile-init.outputs.OPENWRTROOT }}
+        OPENWRTROOT=$(pwd)
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo -e "$(nproc) thread compile"
-        make tools/compile -j$(nproc) || make tools/compile -j40
-        make toolchain/compile -j$(nproc) || make toolchain/compile -j40
-        make target/compile -j$(nproc) || make target/compile -j40 IGNORE_ERRORS=1
+        make target/compile -j$(nproc)
         make diffconfig
-        make package/compile -j$(nproc) IGNORE_ERRORS=1 || make package/compile -j40 IGNORE_ERRORS=1
+        make package/compile -j$(nproc) IGNORE_ERRORS=1
         make package/index
         cd $OPENWRTROOT/bin/packages/*
         PLATFORM=$(basename `pwd`)
@@ -121,7 +159,6 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
-        
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
@@ -154,57 +191,69 @@ jobs:
         rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
         rm -rf config.buildinfo
         rm -rf packages-server.zip
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5s-ext4-sysupgrade.img.gz docker-friendlyarm_nanopi-r5s-ext4-sysupgrade.img.gz 
         mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-ext4-sysupgrade.img.gz docker-friendlyarm_nanopi-r5c-ext4-sysupgrade.img.gz 
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz docker-friendlyarm_nanopi-r5s-squashfs-sysupgrade.img.gz
         mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz docker-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz
         popd
         make checksum
         mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/docker-sha256sums
-        echo "GENERATE_STATUS=success" >> $GITHUB_OUTPUT
+        echo "GENERATE_STATUS=success"  >> $GITHUB_OUTPUT
         
     - name: Generate release tag
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
-          echo "release_tag=$(date +"%Y.%m.%d")-Lean1" >> $GITHUB_OUTPUT
-          echo "release_date=$(date +"%Y.%m.%d")" >> $GITHUB_OUTPUT
+          echo "RELEASE_TAG=$(date +"%Y.%m.%d")-Lean1" >> $GITHUB_OUTPUT
+          echo "RELEASE_DATA=$(date +"%Y.%m.%d")" >> $GITHUB_OUTPUT
           touch release.txt
           echo "后台地址：192.168.11.1
-                full   = 全插件
-                docker = 带docker
-                slim   = 精简版
-                beggar = 乞丐版" >> release.txt
-          echo "status=success" >> $GITHUB_OUTPUT
-          
+                默认密码：password
+                docker = 带docker" >> release.txt
+          echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
+
+  upload:
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    timeout-minutes: 1440
+    needs: [compile-package]
+
+    steps:
+  
+    - name: Remove Images
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled() && needs.compile-package.outputs.RELEASE_SUCCESS == 'success'
+      run: | 
+        ID_LIST="$(docker images -q)"
+        if [[ -n "${ID_LIST}" ]];then
+           docker rmi $ID_LIST -f
+        fi
+        docker images
+
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      if: needs.compile-package.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-          name: ${{ steps.tag.outputs.release_date }} NanoPi-R5S-R5C-linux.6.1_固件下载
-          tag_name: ${{ steps.tag.outputs.release_tag }}
+          name: ${{ needs.compile-package.outputs.RELEASE_DATE }} NanoPi-R4S-R4SE-linux.5.4_固件下载
+          tag_name: ${{ needs.compile-package.outputs.RELEASE_TAG }}
           body_path: release.txt
-          files: ${{ env.FIRMWARE }}/*
+          files: ${{ needs.compile-package.outputs.FIRMWARE }}/*
 
     - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@v2
+      uses: GitRML/delete-workflow-runs@main
       with:
-          retain_days: 1
-          keep_minimum_runs: 1
+        retain_days: 1
+        keep_minimum_runs: 1
 
     - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@v0.2.1
+      uses: dev-drprasad/delete-older-releases@v0.1.0
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
           keep_latest: 20
           delete_tags: true
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     - name: Delete Artifacts
-      uses: geekyeggo/delete-artifact@v2
+      uses: geekyeggo/delete-artifact@v1
       with:
-         name: |
+          name: |
             bin-archive
