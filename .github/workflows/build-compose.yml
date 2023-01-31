@@ -305,7 +305,7 @@ jobs:
           touch release.txt
           echo "后台地址：192.168.2.1
                 默认密码：password
-                docker = 带docker" >> release.txt
+                docker = 带docker" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
   upload:
