@@ -16,6 +16,7 @@ env:
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  COMMIT_ID: ba86d96a12e48a093799777a828c88135bdd3366
 
 jobs:
 
@@ -58,6 +59,8 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
+        echo "COMMIT_ID version: $COMMIT_ID"
+        git reset --hard $COMMIT_ID
         rm -rf .git
 
     - name: Clone Custom Feeds
