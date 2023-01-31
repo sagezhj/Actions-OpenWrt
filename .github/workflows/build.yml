@@ -12,6 +12,7 @@ on:
         options:
         - 10900T
         - 10850K
+        - epyc
   #schedule:
     #- cron: 0 17 * * *
   # watch:
