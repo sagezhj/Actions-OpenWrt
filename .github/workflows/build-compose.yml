@@ -31,7 +31,6 @@ env:
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
-  COMMIT_ID: ba86d96a12e48a093799777a828c88135bdd3366
   
 jobs:
 
@@ -74,7 +73,6 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-
 
     - name: Clone Custom Feeds
       id: update
