@@ -20,6 +20,7 @@ on:
         options:
         - 10900T
         - 10850K
+        - epyc
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
