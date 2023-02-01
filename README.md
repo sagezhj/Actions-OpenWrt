@@ -1,5 +1,4 @@
-# 中文简体 | [English](https://github.com/DHDAXCW/NanoPi-R5S-2021/blob/main/EngLish.md)
-# NanoPi-R5S NanoPi-R5C
+# NanoPi-R5C
 # 机场推荐 [ENET--IEPL内网专线接入](https://www.easy2022.com/#/register?code=Ut7iWMrk)
 ## 👉使用本固件前，请严格遵守国家互联网使用相关法律规定,不要违反国家法律规定！👈
 ### 固件分类 在[releases](https://github.com/DHDAXCW/NanoPi-R5S/releases)有备注关键词
@@ -17,7 +16,7 @@
 
 ### 默认编译
 
-- 用户名：root 密码：password  管理IP：192.168.11.1
+- 用户名：root 密码：password  管理IP：10.0.2.1
 - 下载地址： https://github.com/DHDAXCW/NanoPi-R5S/releases
 - x86_64固件下载 https://github.com/DHDAXCW/lede/releases、
 - 关于r5s刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
