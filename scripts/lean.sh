@@ -9,11 +9,16 @@
 
 # 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
 
+rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
 rm -rf package/kernel/mt76
-svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
-svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mt76 package/kernel/mt76
-rm -rf package/kernel/rtl8821cu
+# openwrt 官方的只能使用ac模式
+#svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
+#svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mt76 package/kernel/mt76
+# test
+svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mac80211 package/kernel/mac80211
+svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mt76 package/kernel/mt76
+
 
 # alist
 git clone https://github.com/DHDAXCW/luci-app-alist package/alist
@@ -121,7 +126,7 @@ popd
 
 # Fix mt76 wireless driver
 pushd package/kernel/mt76
-sed -i '/mt7662u_rom_patch.bin/a\\techo mt76-usb disable_usb_sg=1 > $\(1\)\/etc\/modules.d\/mt76-usb' Makefile
+#sed -i '/mt7662u_rom_patch.bin/a\\techo mt76-usb disable_usb_sg=1 > $\(1\)\/etc\/modules.d\/mt76-usb' Makefile
 popd
 
 # Change default shell to zsh
