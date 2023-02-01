@@ -240,7 +240,7 @@ jobs:
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo -e "$(nproc) thread compile"
-        make package/compile -j$(nproc) IGNORE_ERRORS=1
+        make package/compile -j$(nproc) IGNORE_ERRORS=1 || make package/compile -j10 IGNORE_ERRORS=1
         make package/index
         cd $OPENWRTROOT/bin/packages/*
         PLATFORM=$(basename `pwd`)
