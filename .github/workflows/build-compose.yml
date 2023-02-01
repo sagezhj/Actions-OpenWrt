@@ -20,7 +20,6 @@ on:
         options:
         - 10900T
         - 10850K
-        - epyc
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
@@ -31,6 +30,7 @@ env:
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
+  COMMIT_ID: ${{ vars.COMMIT_ID }}
   
 jobs:
 
@@ -73,6 +73,9 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
+        echo "COMMIT_ID version: $COMMIT_ID"
+        git reset --hard $COMMIT_ID
+        rm -rf .git
 
     - name: Clone Custom Feeds
       id: update
