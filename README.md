@@ -9,6 +9,20 @@
 - 风扇链接 [点击进入](https://s.click.taobao.com/t?e=m%3D2%26s%3Dd8Ack0Lbx8McQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XJRAdhuF14FMXpyNmcFd6mT8sviUM61dt2T0mcOGN1M6FAj1gqltKaEfKzCcEr0EW0YuhTK3FPxiHMT7yc3NZrQKSOkJV8harV3phaPbavinqGCwVfdcN0wcSpj5qSCmbA%3D)  建议用这种风扇
 ### 注：不要用恢复备份。。不保证某个插件是否正常运行。。。建议重新设置贼好！
 
+
+### 支持在线升级，自动扩容根分区
+- SSH进入终端
+```
+# 会保存配置备份
+bash +x ~/update.sh
+# 跳过备份
+SKIP_BACK=1 bash +x ~/update.sh
+# 默认走代理下载，如不需要代理下载固件，执行下面命令
+USE_PROXY=false bash +x ~/update.sh
+# 默认使用ghproxy.com代理，自定义代理执行下面命令
+PROXY=gh.flyinbug.top/gh bash+x ~/update.sh
+```
+
 ### 源代码地址
 - lede https://github.com/DHDAXCW/lede-rockchip
 - Luci https://github.com/DHDAXCW/luci
