@@ -18,7 +18,6 @@ tmp_mountpoint=/opt
 # 用户可以声明上面文件路径来本地不联网升级
 
 NO_NET=''
-: ${VER:=} # slim or full
 
 # gh.flyinbug.top/gh、ghproxy.com
 : ${proxy_domain_path:=ghproxy.com}
@@ -338,9 +337,7 @@ function update(){
         tarOPts=""
         tar --help |& grep -q -- --touch && tarOPts=m
         tar zxf${tarOPts} back.tar.gz -C /mnt/update/img # -m 忽略时间戳的警告
-        if [ "${VER}" == '-slim' ];then
-            sed -i '/exit/i\sed -i "/packages_needed/d" /etc/rc.local; [ -e /packages_needed ] && (mv /packages_needed /packages_needed.installed && sh /packages_needed.installed)\' /mnt/update/img/etc/rc.local
-        fi
+   
         debug df -h
         rm back.tar.gz
         success '备份文件已经写入，移除挂载'
@@ -533,11 +530,6 @@ function main(){
                 ;;
         esac
     fi
-    [ "${VER}" == 'slim' ] && VER=-slim
-    if [ -z "$VER" ] && [ -d /local_feed/ ];then
-        VER=-slim
-    fi
-    [ "$VER" == full ] && VER=''
 
     [ "$TEST" = true ] && release_name=test || release_name=latest
 
