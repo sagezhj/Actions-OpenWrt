@@ -6,7 +6,7 @@ on:
 
 env:
   SOURCE_URL: https://github.com/DHDAXCW/lede-rockchip
-  SOURCE_BRANCH: master
+  SOURCE_BRANCH: stable
   CONFIG_FILE: configs/lean/lean_docker.config
   DIY_SCRIPT: scripts/lean.sh
   TOOLCHAIN_TAG: Toolchain
