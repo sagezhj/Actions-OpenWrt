@@ -1,67 +1,88 @@
-#=================================================
-# https://github.com/P3TERX/Actions-OpenWrt
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
-
 name: build-compose
 
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs:
-      use_machine:
-        description: 'Machine'
-        required: true
-        default: 10900T
-        type: choice
-        options:
-        - 10900T
-        - 10850K
 
 env:
-  REPO_URL: https://github.com/DHDAXCW/lede-rockchip
-  REPO_BRANCH: stable
+  SOURCE_URL: https://github.com/DHDAXCW/lede-rockchip
+  SOURCE_BRANCH: master
   CONFIG_FILE: configs/lean/lean_docker.config
-  DIY_SH: scripts/lean.sh
+  DIY_SCRIPT: scripts/lean.sh
+  TOOLCHAIN_TAG: Toolchain
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
+  OPENWRT_TAG: docker
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   
 jobs:
 
-  source-code:
-    runs-on: ubuntu-20.04
+  Toolchain:
+    runs-on: ubuntu-22.04
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
+      VERSION_INFO: ${{ steps.clone.outputs.VERSION_INFO }}
+      CURRENT_BRANCH: ${{ steps.env.outputs.CURRENT_BRANCH }}
+      SOURCE_REPO: ${{ steps.env.outputs.SOURCE_REPO }}
+      DEVICE_SUBTARGET: ${{ steps.env.outputs.DEVICE_SUBTARGET }}
+      TOOLCHAIN_IMAGE: ${{ steps.env.outputs.TOOLCHAIN_IMAGE }}
     steps:
 
-    - name: Initialization Environment
+    - name: Check Server Performance
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息："
+        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Free disk space
+      run: |
+        sudo -E swapoff -a
+        sudo -E rm -f /swapfile
+        sudo -E docker image prune -a -f
+        sudo -E systemctl stop docker
+        sudo -E snap set system refresh.retain=2
+        sudo -E apt-get -y purge dotnet* firefox clang* gcc-10* ghc* google* hhvm llvm* mono* mongo* mysql* openjdk* php* zulu*
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        sudo -E rm -rf /etc/mysql /etc/php /usr/lib/jvm /usr/libexec/docker /usr/local /usr/src/* /var/lib/docker /var/lib/gems /var/lib/mysql /var/lib/snapd /etc/skel /opt/{microsoft,az,hostedtoolcache,cni,mssql-tools,pipx} /usr/share/{az*,dotnet,swift,miniconda,gradle*,java,kotlinc,ri,sbt} /root/{.sbt,.local,.npm}
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        rm -rf ~/{.cargo,.dotnet,.rustup}
+        [ -n "$AGENT_TOOLSDIRECTORY" ] && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        df -h
+
+    - name: Init build dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        echo -e "Total CPU cores\t: $(nproc)"
-        cat /proc/cpuinfo | grep 'model name'
-        free -h
-        uname -a
-        [ -f /proc/version ] && cat /proc/version
-        [ -f /etc/issue.net ] && cat /etc/issue.net
-        [ -f /etc/issue ] && cat /etc/issue
-        ulimit -a
-    
+        sudo -E rm -rf /etc/apt/sources.list.d
+        sudo -E apt-get update -y
+        sudo -E apt-get install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
+        git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev vpnc \
+        libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz aria2 lib32gcc-s1 \
+        mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils \
+        rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev
+        echo "deb http://archive.ubuntu.com/ubuntu/ bionic-security main" | sudo tee -a /etc/apt/sources.list
+        sudo -E apt-get update
+        sudo -E apt-cache policy libssl1.0-dev
+        sudo -E apt-get install -y libssl1.0-dev kmod
+        sudo -E apt-get clean -y
+        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        df -h
+
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_TOKEN }}
-        
     - name: Clone Source Code
       run: |
         df -hT $PWD
@@ -76,6 +97,157 @@ jobs:
         echo "COMMIT_ID version: $COMMIT_ID"
         git reset --hard $COMMIT_ID
         rm -rf .git
+        export VERSION_INFO=$(git show -s --date=short --format="Author: %an<br/>date: %cd<br/>commit: %s<br/>commit hash: %H")
+        echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
+        echo "VERSION_INFO=$(echo $VERSION_INFO)" >> $GITHUB_OUTPUT
+
+    - name: Generate Toolchain Config
+      run: |
+        [ -e files ] && mv files $OPENWRTROOT/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
+        echo "CONFIG_ALL=y" >> $OPENWRTROOT/.config
+        echo "CONFIG_ALL_NONSHARED=y" >> $OPENWRTROOT/.config
+        cd $OPENWRTROOT
+        make defconfig
+
+    - name: Generate Variables
+      id: env
+      run: |
+        cd $OPENWRTROOT
+        export DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
+        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
+        echo "DEVICE_SUBTARGET=$(echo $DEVICE_SUBTARGET)" >> $GITHUB_OUTPUT
+        export TOOLCHAIN_IMAGE="toolchain-$SOURCE_REPO-$SOURCE_BRANCH-$DEVICE_SUBTARGET"
+        echo "TOOLCHAIN_IMAGE=$TOOLCHAIN_IMAGE" >> $GITHUB_ENV
+        echo "TOOLCHAIN_IMAGE=$(echo $TOOLCHAIN_IMAGE)" >> $GITHUB_OUTPUT
+
+
+    - name: Compare Toolchain Hash
+      id: hash
+      run: |
+        cd $OPENWRTROOT
+        export CURRENT_HASH=$(git log --pretty=tformat:"%H" -n1 tools toolchain)
+        echo "CURRENT_HASH=$CURRENT_HASH" >> $GITHUB_ENV
+        echo "CURRENT_HASH is $CURRENT_HASH"
+        export CACHE_HASH=$(curl -fSsL https://github.com/$GITHUB_REPOSITORY/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.hash)
+        echo "CACHE_HASH is $CACHE_HASH"
+        if [ -z "$CACHE_HASH" ] || [ "$CURRENT_HASH" != "$CACHE_HASH" ]; then
+          echo "REBUILD_TOOLCHAIN=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Install Feeds
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      run: |
+        cd $OPENWRTROOT
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        
+    - name: Compile Tools
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      run: |
+        cd $OPENWRTROOT
+        make defconfig
+        echo -e "$(nproc) thread compile"
+        make tools/compile -j$(nproc) || make tools/compile -j1 V=s
+
+    - name: Compile Toolchain
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      run: |
+        cd $OPENWRTROOT
+        echo -e "$(nproc) thread compile"
+        make toolchain/compile -j$(nproc) || make toolchain/compile -j1 V=s
+        rm -rf .config* dl bin
+  
+    - name: Generate Toolchain Image
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      run: |
+        mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
+        mkdir -p output
+        split -d -b 1900M $TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.img.
+        rm $TOOLCHAIN_IMAGE
+        echo $CURRENT_HASH > output/$TOOLCHAIN_IMAGE.hash
+        ls -lh output
+
+    - name: Delete Old Toolchain Assets
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      uses: mknejp/delete-release-assets@v1
+      with:
+        token: ${{ secrets.TOKEN }}
+        tag: ${{ env.TOOLCHAIN_TAG }}
+        assets: '${{ env.TOOLCHAIN_IMAGE }}.*'
+        fail-if-no-assets: false
+        fail-if-no-release: false
+
+    - name: Upload Toolchain Image
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: Toolchain-Image
+        allowUpdates: true
+        replacesArtifacts: true
+        tag: ${{ env.TOOLCHAIN_TAG }}
+        token: ${{ secrets.TOKEN }}
+        artifacts: output/*
+        body: OpenWrt 工具链镜像文件
+
+
+  Build:
+    needs: [Toolchain]
+    runs-on: ubuntu-22.04
+    steps:
+
+    - name: Check Server Performance
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息："
+        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Free disk space
+      run: |
+        sudo -E swapoff -a
+        sudo -E rm -f /swapfile
+        sudo -E docker image prune -a -f
+        sudo -E systemctl stop docker
+        sudo -E snap set system refresh.retain=2
+        sudo -E apt-get -y purge dotnet* firefox clang* gcc-10* ghc* google* hhvm llvm* mono* mongo* mysql* openjdk* php* zulu*
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+        sudo -E rm -rf /etc/mysql /etc/php /usr/lib/jvm /usr/libexec/docker /usr/local /usr/src/* /var/lib/docker /var/lib/gems /var/lib/mysql /var/lib/snapd /etc/skel /opt/{microsoft,az,hostedtoolcache,cni,mssql-tools,pipx} /usr/share/{az*,dotnet,swift,miniconda,gradle*,java,kotlinc,ri,sbt} /root/{.sbt,.local,.npm}
+        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
+        rm -rf ~/{.cargo,.dotnet,.rustup}
+        [ -n "$AGENT_TOOLSDIRECTORY" ] && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        df -h
+
+    - name: Init build dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E rm -rf /etc/apt/sources.list.d
+        sudo -E apt-get update -y
+        sudo -E apt-get install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+        bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
+        git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev vpnc \
+        libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz aria2 lib32gcc-s1 \
+        mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils \
+        rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev
+        echo "deb http://archive.ubuntu.com/ubuntu/ bionic-security main" | sudo tee -a /etc/apt/sources.list
+        sudo -E apt-get update
+        sudo -E apt-cache policy libssl1.0-dev
+        sudo -E apt-get install -y libssl1.0-dev kmod
+        sudo -E apt-get clean -y
+        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        df -h
+
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Clone Custom Feeds
       id: update
@@ -86,7 +258,7 @@ jobs:
         git clone --depth=1 https://github.com/DHDAXCW/luci customfeeds/luci
         chmod +x ../scripts/*.sh
         ../scripts/hook-feeds.sh
-  
+
     - name: Update And install Feeds
       run: | 
         cd $OPENWRTROOT
@@ -113,21 +285,18 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         ls -lah dl
 
-    - name: Comporession
+    - name: Compare Toolchain Hash
+      id: hash
       run: |
-        tar --zstd -cf openwrt.tar.zst ./openwrt
-
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
-      with:
-        context: ./
-        file: ./Dockerfile
-        push: true
-        tags: ${{ vars.IMAGE }}
-        
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
+        cd $OPENWRT_PATH
+        export CURRENT_HASH=$(git log --pretty=tformat:"%H" -n1 tools toolchain)
+        echo "CURRENT_HASH=$CURRENT_HASH" >> $GITHUB_ENV
+        echo "CURRENT_HASH is $CURRENT_HASH"
+        export CACHE_HASH=$(curl -fSsL https://github.com/$GITHUB_REPOSITORY/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.hash)
+        echo "CACHE_HASH is $CACHE_HASH"
+        if [ -z "$CACHE_HASH" ] || [ "$CURRENT_HASH" != "$CACHE_HASH" ]; then
+          echo "REBUILD_TOOLCHAIN=true" >> $GITHUB_OUTPUT
+        fi
 
   compile-init:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
