@@ -12,8 +12,23 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      compose:
+        description: Compose jobs
+        required: true
+        default: false
+        type: boolean
+      donwload:
+        description: Download source code
+        required: true
+        default: false
+        type: boolean
+      compile:
+        description: Compile source code
+        required: true
+        default: false
+        type: boolean
       use_machine:
-        description: 'Machine'
+        description: 'Compile machine'
         required: true
         default: 10900T
         type: choice
@@ -35,12 +50,14 @@ env:
 jobs:
 
   source-code:
+    if: input.download || input.compose
     runs-on: ubuntu-20.04
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
     steps:
 
     - name: Initialization Environment
+      if: input.compose == false && input.compose == false
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -54,20 +71,24 @@ jobs:
         ulimit -a
     
     - name: Checkout
+      if: input.compose == false && input.compose == false
       uses: actions/checkout@v3
 
     - name: Login to Docker Hub
+      if: input.compose == false && input.compose == false
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
         
     - name: Clone Source Code
+      if: input.compose == false && input.compose == false
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Reset Version
+      if: input.compose == false && input.compose == false
       id: reset
       run: |
         cd openwrt
@@ -78,6 +99,7 @@ jobs:
         rm -rf .git
 
     - name: Clone Custom Feeds
+      if: input.compose == false && input.compose == false
       id: update
       run: |
         cd $OPENWRTROOT
@@ -88,12 +110,14 @@ jobs:
         ../scripts/hook-feeds.sh
   
     - name: Update And install Feeds
+      if: input.compose == false && input.compose == false
       run: | 
         cd $OPENWRTROOT
         chmod +x ../scripts/*.sh
         ../scripts/feeds_settings.sh
         
     - name: Load Custom Configuration
+      if: input.compose == false && input.compose == false      
       run: |
         [ -e files ] && mv files $OPENWRTROOT/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
@@ -105,6 +129,7 @@ jobs:
         make defconfig
         
     - name: Download DLL
+      if: input.compose == false && input.compose == false
       id: package
       run: |
         cd $OPENWRTROOT
@@ -114,10 +139,12 @@ jobs:
         ls -lah dl
 
     - name: Comporession
+      if: input.compose == false && input.compose == false
       run: |
         tar --zstd -cf openwrt.tar.zst ./openwrt
 
     - name: Build and push
+      if: input.compose == false && input.compose == false
       id: docker_build
       uses: docker/build-push-action@v2
       with:
@@ -127,9 +154,11 @@ jobs:
         tags: ${{ vars.IMAGE }}
         
     - name: Image digest
+      if: input.compose == false && input.compose == false
       run: echo ${{ steps.docker_build.outputs.digest }}
 
   compile-init:
+    if: inputs.compile || inputs.compose
     runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
     timeout-minutes: 1440
     needs: [source-code]
