@@ -13,11 +13,8 @@ rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
 rm -rf package/kernel/mt76
 # openwrt 官方的只能使用ac模式
-#svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
-#svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mt76 package/kernel/mt76
-# ax模式下重启机器会卡内核
-svn export https://github.com/gngpp/lede/trunk/package/kernel/mac80211 package/kernel/mac80211
-svn export https://github.com/gngpp/lede/trunk/package/kernel/mt76 package/kernel/mt76
+svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
+svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mt76 package/kernel/mt76
 
 
 # alist
