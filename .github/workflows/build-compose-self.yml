@@ -17,7 +17,7 @@ on:
         required: true
         default: false
         type: boolean
-      donwload:
+      download:
         description: Download source code
         required: true
         default: false
