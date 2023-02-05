@@ -17,6 +17,8 @@ USE_PROXY=false bash +x ~/update.sh
 PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
 
+# 默认加了m.2网卡mt7921
+
 ### 源代码地址
 - lede https://github.com/DHDAXCW/lede-rockchip
 - Luci https://github.com/DHDAXCW/luci
