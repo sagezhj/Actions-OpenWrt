@@ -16,8 +16,7 @@ USE_PROXY=false bash +x ~/update.sh
 # 默认使用ghproxy.com代理，自定义代理执行下面命令
 PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
-
-# 默认加了m.2网卡mt7921
+> 默认加了m.2网卡mt791 drive
 
 ### 源代码地址
 - lede https://github.com/DHDAXCW/lede-rockchip
