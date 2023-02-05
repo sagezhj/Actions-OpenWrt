@@ -15,25 +15,25 @@ on:
       compose:
         description: Compose jobs
         required: true
-        default: Yes
+        default: "Yes"
         type: choice
         options:
-          - Yes
-          - No
+          - "Yes"
+          - "No"
       download:
         description: Download source code
-        default: No
+        default: "No"
         type: choice
         options:
-          - Yes
-          - No
+          - "Yes"
+          - "No"
       compile:
         description: Compile source code
-        default: No
+        default: "No"
         type: choice
         options:
-          - Yes
-          - No
+          - "Yes"
+          - "No"
       use_machine:
         description: 'Compile machine'
         required: true
