@@ -33,6 +33,10 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - 电报群：https://t.me/DHDAXCW
 - X86固件 ：[点击链接下载](https://github.com/gngpp/OpenWRT_x86_x64/releases)
 
+### 预览
+<img src="./data/home.png"/>
+<img src="./data/wifi.png"/>
+
 # [赏个鸡腿吧](https://afdian.net/@dhdaxcw/plan)
 ### https://afdian.net/@dhdaxcw/plan
 
