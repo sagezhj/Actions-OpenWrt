@@ -63,6 +63,13 @@ jobs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
     steps:
 
+    - name: Show choice
+      run: |
+        echo "Download choice=${{ inputs.download }}"
+        echo "Compile choice=${{ inputs.compile }}"
+        echo "Compose choice=${{ inputs.compose }}"
+        echo "Compile machine=${{ inputs.machine }}"
+
     - name: Initialization Environment
       if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
       run: |
