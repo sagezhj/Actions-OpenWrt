@@ -37,11 +37,11 @@ on:
       use_machine:
         description: 'Compile machine'
         required: true
-        default: 10900T
+        default: "10900T"
         type: choice
         options:
-        - 10900T
-        - 10850K
+        - "10900T"
+        - "10850K"
 
 env:
   REPO_URL: https://github.com/DHDAXCW/lede-rockchip
@@ -57,7 +57,7 @@ env:
 jobs:
 
   source-code:
-    if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} =="Yes" || ${{ inputs.compile }} == "Yes"
+    if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" || inputs.compile == "Yes" }}
     runs-on: ubuntu-20.04
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
@@ -68,10 +68,10 @@ jobs:
         echo "Download choice=${{ inputs.download }}"
         echo "Compile choice=${{ inputs.compile }}"
         echo "Compose choice=${{ inputs.compose }}"
-        echo "Compile machine=${{ inputs.machine }}"
+        echo "Compile machine=${{ inputs.use_machine }}"
 
     - name: Initialization Environment
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
@@ -86,24 +86,24 @@ jobs:
         echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
     
     - name: Checkout
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       uses: actions/checkout@v3
 
     - name: Login to Docker Hub
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
         
     - name: Clone Source Code
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Reset Version
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       id: reset
       run: |
         cd openwrt
@@ -114,7 +114,7 @@ jobs:
         rm -rf .git
 
     - name: Clone Custom Feeds
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       id: update
       run: |
         cd $OPENWRTROOT
@@ -125,14 +125,14 @@ jobs:
         ../scripts/hook-feeds.sh
   
     - name: Update And install Feeds
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: | 
         cd $OPENWRTROOT
         chmod +x ../scripts/*.sh
         ../scripts/feeds_settings.sh
         
     - name: Load Custom Configuration
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: |
         [ -e files ] && mv files $OPENWRTROOT/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
@@ -144,7 +144,7 @@ jobs:
         make defconfig
         
     - name: Download DLL
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       id: package
       run: |
         cd $OPENWRTROOT
@@ -154,12 +154,12 @@ jobs:
         ls -lah dl
 
     - name: Comporession
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: |
         tar --zstd -cf openwrt.tar.zst ./openwrt
 
     - name: Build and push
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       id: docker_build
       uses: docker/build-push-action@v2
       with:
@@ -169,7 +169,7 @@ jobs:
         tags: ${{ vars.IMAGE }}
         
     - name: Image digest
-      if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} == "Yes"
+      if: ${{ inputs.download == "Yes" || inputs.compose == "Yes" }}
       run: echo ${{ steps.docker_build.outputs.digest }}
 
   compile-init:
