@@ -165,13 +165,14 @@ jobs:
         echo -e "$(nproc) thread compile"
         make toolchain/compile -j$(nproc) || make toolchain/compile -j1 V=s
         rm -rf .config* dl bin
-  
+
     - name: Generate Toolchain Image
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
       run: |
+        cd workspace
         mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
         mkdir -p output
-        split -d -b 1900M mg.$TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.i
+        split -d -b 1900M $TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.img.
         rm $TOOLCHAIN_IMAGE
         echo $CURRENT_HASH > output/$TOOLCHAIN_IMAGE.hash
         ls -lh output
