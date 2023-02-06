@@ -110,7 +110,7 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        # if $USE_REPO == "DHDAXCW"; then
+        # if $USE_REPO == "https://github.com/DHDAXCW/lede-rockchip"; then
         #   echo "COMMIT_ID version: $COMMIT_ID"
         #   git reset --hard $COMMIT_ID
         # fi
