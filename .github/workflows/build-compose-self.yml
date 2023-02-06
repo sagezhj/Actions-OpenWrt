@@ -52,6 +52,7 @@ env:
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
   USE_REPO: ${{ inputs.repository }}
+  COMMIT_ID: ${{ vars.COMMIT_ID }}
   
 jobs:
 
