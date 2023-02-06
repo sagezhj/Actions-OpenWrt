@@ -144,7 +144,6 @@ jobs:
         fi
 
     - name: Clone Custom Feeds
-      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: update
       run: |
         cd $OPENWRTROOT
@@ -155,14 +154,12 @@ jobs:
         ../scripts/hook-feeds.sh
   
     - name: Update And install Feeds
-      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: | 
         cd $OPENWRTROOT
         chmod +x ../scripts/*.sh
         ../scripts/feeds_settings.sh
         
     - name: Load Custom Configuration
-      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         [ -e files ] && mv files $OPENWRTROOT/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
