@@ -94,8 +94,9 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        echo "COMMIT_ID version: $COMMIT_ID"
-        git reset --hard $COMMIT_ID
+        # echo "COMMIT_ID version: $COMMIT_ID"
+        # git reset --hard $COMMIT_ID
+        rm -rf .git
         export VERSION_INFO=$(git show -s --date=short --format="Author: %an<br/>date: %cd<br/>commit: %s<br/>commit hash: %H")
         echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
         echo "VERSION_INFO=$(echo $VERSION_INFO)" >> $GITHUB_OUTPUT
@@ -310,7 +311,6 @@ jobs:
         sudo mount -o loop $TOOLCHAIN_IMAGE.img openwrt-ro
         sudo mount -t overlay overlay -o lowerdir=openwrt-ro,upperdir=overlay,workdir=workdir openwrt
         cd $OPENWRTROOT
-        git pull
 
     - name: Clone Custom Feeds
       id: update
