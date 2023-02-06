@@ -34,7 +34,7 @@ on:
         options:
           - "Yes"
           - "No"
-      use_machine:
+      machine:
         description: 'Compile machine'
         required: true
         default: "10900T"
@@ -44,8 +44,8 @@ on:
         - "10850K"
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
-  REPO_BRANCH: master
+  REPO_URL: https://github.com/DHDAXCW/lede-rockchip
+  REPO_BRANCH: stable
   CONFIG_FILE: configs/lean/lean_docker.config
   DIY_SH: scripts/lean.sh
   KMODS_IN_FIRMWARE: true
@@ -68,7 +68,7 @@ jobs:
         echo "Download choice=${{ inputs.download }}"
         echo "Compile choice=${{ inputs.compile }}"
         echo "Compose choice=${{ inputs.compose }}"
-        echo "Compile machine=${{ inputs.use_machine }}"
+        echo "Compile machine=${{ inputs.machine }}"
 
     - name: Initialization Environment
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
@@ -109,8 +109,8 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        # echo "COMMIT_ID version: $COMMIT_ID"
-        # git reset --hard $COMMIT_ID
+        echo "COMMIT_ID version: $COMMIT_ID"
+        git reset --hard $COMMIT_ID
         rm -rf .git
 
     - name: Clone Custom Feeds
@@ -174,7 +174,7 @@ jobs:
 
   CompileInitialize:
     if: inputs.compile || inputs.compose
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [DownloadSourceCode]
 
@@ -246,7 +246,7 @@ jobs:
         cat .config
 
   CompileToolchain:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileInitialize]
 
@@ -262,7 +262,7 @@ jobs:
         make diffconfig
   
   CompileFirmware:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileInitialize, CompileToolchain]
 
@@ -356,7 +356,7 @@ jobs:
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
   UploadFirmware:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.use_machine }}"]
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileFirmware]
 
