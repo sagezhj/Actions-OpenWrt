@@ -30,7 +30,6 @@ jobs:
 
     - name: Upload Toolchain Image
       uses: softprops/action-gh-release@v1
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
       env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
