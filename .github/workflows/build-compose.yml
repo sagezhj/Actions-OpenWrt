@@ -169,7 +169,6 @@ jobs:
     - name: Generate Toolchain Image
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
       run: |
-        cd workspace
         mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
         mkdir -p output
         split -d -b 1900M $TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.img.
@@ -281,8 +280,6 @@ jobs:
 
     - name: Prepare Toolchain Image
       run: |
-        mkdir -p workspace
-        cd workspace
         for i in {0..9}
         do
           curl -fsL https://github.com/$TOOLCHAIN_RELEASE_REPO/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.img.0$i >> $TOOLCHAIN_IMAGE.img || break
