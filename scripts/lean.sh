@@ -131,7 +131,7 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 sed -i 's/192.168.1.1/10.0.2.1/g' package/base-files/files/bin/config_generate
 
 # Test kernel 5.15
-if $USE_REPO == "DHDAXCW"; then
+if $USE_REPO == "https://github.com/DHDAXCW/lede-rockchip"; then
     sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
     rm -rf target/linux/rockchip/image/armv8.mk
     cp -f $GITHUB_WORKSPACE/armv8.mk target/linux/rockchip/image/armv8.mk
