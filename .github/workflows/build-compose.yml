@@ -143,12 +143,35 @@ jobs:
           echo "REBUILD_TOOLCHAIN=true" >> $GITHUB_OUTPUT
         fi
 
-    - name: Install Feeds
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+    - name: Clone Custom Feeds
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      id: update
       run: |
         cd $OPENWRTROOT
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
+        mkdir customfeeds
+        git clone --depth=1 https://github.com/DHDAXCW/packages customfeeds/packages
+        git clone --depth=1 https://github.com/DHDAXCW/luci customfeeds/luci
+        chmod +x ../scripts/*.sh
+        ../scripts/hook-feeds.sh
+  
+    - name: Update And install Feeds
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      run: | 
+        cd $OPENWRTROOT
+        chmod +x ../scripts/*.sh
+        ../scripts/feeds_settings.sh
+        
+    - name: Load Custom Configuration
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      run: |
+        [ -e files ] && mv files $OPENWRTROOT/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
+        chmod +x scripts/*.sh
+        cd $OPENWRTROOT
+        ../$DIY_SH
+        ../scripts/preset-clash-core.sh arm64
+        ../scripts/preset-terminal-tools.sh
+        make defconfig
         
     - name: Compile Tools
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
