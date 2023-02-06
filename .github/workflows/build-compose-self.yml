@@ -12,6 +12,14 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
+      repository:
+        description: Use openwrt repository
+        required: true
+        default: "DHDAXCW"
+        type: choice
+        options:
+          - "DHDAXCW"
+          - "LEAN"
       compose:
         description: Compose jobs
         required: true
@@ -44,7 +52,8 @@ on:
         - "10850K"
 
 env:
-  REPO_URL: https://github.com/DHDAXCW/lede-rockchip
+  DHDAXCW_SOURCE_REPO: https://github.com/DHDAXCW/lede-rockchip
+  LEAN_SOURCE_REPO: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: stable
   CONFIG_FILE: configs/lean/lean_docker.config
   DIY_SH: scripts/lean.sh
@@ -53,6 +62,7 @@ env:
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
+  USE_REPO: ${{ inputs.repository }}
   
 jobs:
 
@@ -100,7 +110,7 @@ jobs:
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        git clone $USE_REPO -b $REPO_BRANCH openwrt
 
     - name: Reset Version
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
