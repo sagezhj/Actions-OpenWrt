@@ -196,6 +196,7 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
+          repository: ${{ env.TOOLCHAIN_RELEASE_REPO }}
           name: Toolchain-Image
           tag_name: ${{ env.TOOLCHAIN_TAG }}
           body: OpenWrt 工具链镜像文件
