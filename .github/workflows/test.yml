@@ -1,0 +1,41 @@
+name: build-compose
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  SOURCE_URL: https://github.com/DHDAXCW/lede-rockchip
+  SOURCE_BRANCH: stable
+  CONFIG_FILE: configs/lean/lean_docker.config
+  DIY_SCRIPT: scripts/lean.sh
+  TOOLCHAIN_TAG: Toolchain
+  KMODS_IN_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  OPENWRT_TAG: docker
+  TOOLCHAIN_RELEASE_REPO: gngpp/toolchain-release
+  TZ: Asia/Shanghai
+  IMAGE: ${{ vars.IMAGE }}
+  COMMIT_ID: ${{ vars.COMMIT_ID }}
+  
+jobs:
+
+  Toolchain:
+    runs-on: ubuntu-20.04
+    
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Upload Toolchain Image
+      uses: softprops/action-gh-release@v1
+      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
+      env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+          name: Toolchain-Image
+          tag_name: ${{ env.TOOLCHAIN_TAG }}
+          body: OpenWrt 工具链镜像文件
+          files: data/*
+

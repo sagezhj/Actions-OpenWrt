@@ -175,6 +175,8 @@ jobs:
         rm $TOOLCHAIN_IMAGE
         echo $CURRENT_HASH > output/$TOOLCHAIN_IMAGE.hash
         ls -lh output
+        cd output
+        echo "TOOLCHAIN_IMAGE_OUTPUT=$(pwd)" >> $GITHUB_ENV
 
     - name: Delete Old Toolchain Assets
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
@@ -187,18 +189,17 @@ jobs:
         fail-if-no-assets: false
         fail-if-no-release: false
 
+
     - name: Upload Toolchain Image
+      uses: softprops/action-gh-release@v1
       if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
-      uses: ncipollo/release-action@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        repo: ${{ env.TOOLCHAIN_RELEASE_REPO }}
-        name: Toolchain-Image
-        allowUpdates: true
-        replacesArtifacts: true
-        tag: ${{ env.TOOLCHAIN_TAG }}
-        token: ${{ secrets.TOKEN }}
-        artifacts: output/*
-        body: OpenWrt 工具链镜像文件
+          name: Toolchain-Image
+          tag_name: ${{ env.TOOLCHAIN_TAG }}
+          body: OpenWrt 工具链镜像文件
+          files: ${{ env.TOOLCHAIN_IMAGE_OUTPUT }}/*
 
 
   Build:
