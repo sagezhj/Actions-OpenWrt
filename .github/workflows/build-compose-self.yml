@@ -7,11 +7,11 @@ on:
       repository:
         description: Use openwrt repository
         required: true
-        default: "DHDAXCW"
+        default: "https://github.com/DHDAXCW/lede-rockchip"
         type: choice
         options:
-          - "DHDAXCW"
-          - "LEAN"
+          - "https://github.com/DHDAXCW/lede-rockchip"
+          - "https://github.com/coolsnowwolf/lede"
       compose:
         description: Compose jobs
         required: true
@@ -44,8 +44,6 @@ on:
         - "10850K"
 
 env:
-  DHDAXCW_SOURCE_REPO: https://github.com/DHDAXCW/lede-rockchip
-  LEAN_SOURCE_REPO: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: stable
   CONFIG_FILE: configs/lean/lean_docker.config
   DIY_SH: scripts/lean.sh
