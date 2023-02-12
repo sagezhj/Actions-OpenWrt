@@ -133,3 +133,7 @@ sed -i 's/192.168.1.1/10.0.2.1/g' package/base-files/files/bin/config_generate
 sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 rm -rf target/linux/rockchip/image/armv8.mk
 cp -f $GITHUB_WORKSPACE/armv8.mk target/linux/rockchip/image/armv8.mk
+<<<<<<< HEAD
+=======
+# cp -f $GITHUB_WORKSPACE/999-fuck-rockchip-pcie.patch target/linux/rockchip/patches-6.1/999-fuck-rockchip-pcie.patch
+>>>>>>> 8f068c3 (Update)
