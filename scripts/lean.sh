@@ -48,7 +48,6 @@ svn export https://github.com/xiaorouji/openwrt-passwall/branches/luci/luci-app-
 git clone --depth=1 https://github.com/fw876/helloworld
 
 # Add luci-app-unblockneteasemusic
-rm -rf ../../customfeeds/luci/applications/luci-app-unblockmusic
 git clone --branch master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 
 # Add luci-app-vssr <M>
@@ -64,6 +63,7 @@ svn export https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 # Add ddnsto & linkease
 svn export https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-ddnsto
 svn export https://github.com/linkease/nas-packages/trunk/network/services/ddnsto
+svn export https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-linkease
 
 # Add ServerChan
 git clone --depth=1 https://github.com/tty228/luci-app-serverchan
