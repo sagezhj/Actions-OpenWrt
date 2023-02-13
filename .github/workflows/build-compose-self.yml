@@ -153,7 +153,6 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-        ls -lah dl
 
     - name: Comporession
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
@@ -226,6 +225,9 @@ jobs:
         tar -xf openwrt.tar.zst
         ls -alh ./openwrt
         rm openwrt.tar.zst
+
+    - name: Show DLL
+      run:  ls -lah ./openwrt/dl
       
     - name: Clean
       id: clean
