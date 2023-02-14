@@ -1,6 +1,6 @@
 # NanoPi-R5C
 ## 👉使用本固件前，请严格遵守国家互联网使用相关法律规定,不要违反国家法律规定！👈
-- Docker版 含Docker插件，会导致udp转发失效 慎用哦，只要别开passwall的udp，啥都不影响使用！
+
 ### 支持在线升级，自动扩容根分区
 - SSH进入终端
 ```
@@ -31,7 +31,6 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - rkbin下载 https://github.com/gngpp/NanoPi-R5S-R5C/raw/main/data/rk356x-MiniLoaderAll.bin
 - Docker：正式版带docker，有超频，带有docker插件。（对passwall的udp要求很高，不要刷docker版本）
 - 电报群：https://t.me/DHDAXCW
-- X86固件 ：[点击链接下载](https://github.com/gngpp/OpenWRT_x86_x64/releases)
 
 ### 预览
 <img src="./data/home.png"/>
