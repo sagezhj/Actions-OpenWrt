@@ -36,6 +36,7 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ### 预览
 <img src="./data/home.png"/>
 <img src="./data/wifi.png"/>
+<img src="./data/wireless_list.png"/>
 
 # [赏个鸡腿吧](https://afdian.net/@dhdaxcw/plan)
 ### https://afdian.net/@dhdaxcw/plan
