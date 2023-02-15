@@ -14,9 +14,13 @@ rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
 rm -rf package/kernel/mt76
 rm -rf package/network/services/hostapd
+
 svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
-svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mt76 package/kernel/mt76
 svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
+cp -r $GITHUB_WORKSPACE/mt76 package/kernel/mt76
+rm -rf package/kernel/mac80211/Makefile
+cp -f $GITHUB_WORKSPACE/mac80211/Makefile package/kernel/mac80211/Makefile
+
 # 重启概率卡死，暂时无解
 #svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mac80211 package/kernel/mac80211
 #svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mt76 package/kernel/mt76
