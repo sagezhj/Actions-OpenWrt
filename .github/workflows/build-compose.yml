@@ -92,8 +92,8 @@ jobs:
         df -hT $PWD
         git clone $SOURCE_URL -b $SOURCE_BRANCH openwrt
         cd openwrt
-        echo "OPENWRTROOT=$pwd" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$pwd" >> $GITHUB_OUTPUT
+        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         # echo "COMMIT_ID version: $COMMIT_ID"
         # git reset --hard $COMMIT_ID
         rm -rf .git
@@ -103,9 +103,8 @@ jobs:
 
     - name: Generate Toolchain Config
       run: |
-        chmod +x scripts/*.sh
-        [ -e files ] && cp -r files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && cp $CONFIG_FILE $OPENWRTROOT/.config
+        [ -e files ] && sudo mv files $OPENWRTROOT/files
+        [ -e $CONFIG_FILE ] && sudo mv $CONFIG_FILE $OPENWRTROOT/.config
         echo "CONFIG_ALL=y" >> $OPENWRTROOT/.config
         echo "CONFIG_ALL_NONSHARED=y" >> $OPENWRTROOT/.config
         cd $OPENWRTROOT
