@@ -311,6 +311,7 @@ jobs:
         sudo mount -o loop $TOOLCHAIN_IMAGE.img openwrt-ro
         sudo mount -t overlay overlay -o lowerdir=openwrt-ro,upperdir=overlay,workdir=workdir openwrt
         cd $OPENWRTROOT
+        ls -lah
 
     - name: Clone Custom Feeds
       id: update
@@ -330,8 +331,8 @@ jobs:
         
     - name: Load Custom Configuration
       run: |
-        [ -e files ] && mv files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
+        [ -e files ] && sudo mv files $OPENWRTROOT/files
+        [ -e $CONFIG_FILE ] && sudo mv $CONFIG_FILE $OPENWRTROOT/.config
         chmod +x scripts/*.sh
         cd $OPENWRTROOT
         ../$DIY_SH
