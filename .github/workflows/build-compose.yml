@@ -99,6 +99,7 @@ jobs:
         cd $OPENWRTROOT
         export CURRENT_HASH=$(git log --pretty=tformat:"%H" -n1 tools toolchain)
         echo "CURRENT_HASH=$CURRENT_HASH" >> $GITHUB_ENV
+        echo "CURRENT_HASH=$CURRENT_HASH" >> $GITHUB_OUTPUT    
         echo "CURRENT_HASH is $CURRENT_HASH"
         export CACHE_HASH=$(curl -fSsL https://github.com/$TOOLCHAIN_RELEASE_REPO/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.hash)
         echo "CACHE_HASH is $CACHE_HASH"
@@ -167,7 +168,7 @@ jobs:
         mkdir -p output
         split -d -b 1900M $TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.img.
         rm $TOOLCHAIN_IMAGE
-        echo $CURRENT_HASH > output/$TOOLCHAIN_IMAGE.hash
+        echo "$CURRENT_HASH" > output/$TOOLCHAIN_IMAGE.hash
         ls -lh output
         cd output
         echo "TOOLCHAIN_IMAGE_OUTPUT=$(pwd)" >> $GITHUB_ENV
