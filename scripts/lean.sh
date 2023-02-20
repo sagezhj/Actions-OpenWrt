@@ -17,9 +17,9 @@ rm -rf package/network/services/hostapd
 
 svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
 svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
-cp -r $GITHUB_WORKSPACE/mt76 package/kernel/mt76
-rm -rf package/kernel/mac80211/Makefile
-cp -f $GITHUB_WORKSPACE/mac80211/Makefile package/kernel/mac80211/Makefile
+cp -r ../package/kernel/mt76 ./package/kernel/mt76
+rm package/kernel/mac80211/Makefile
+cp -f ../package/kernel/mac80211/Makefile ./package/kernel/mac80211/Makefile
 
 # 重启概率卡死，暂时无解
 #svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mac80211 package/kernel/mac80211
@@ -123,9 +123,9 @@ sed -i "s/${orig_version}/${orig_version} (${date_version})/g" zzz-default-setti
 popd
 
 # Fix mt76 wireless driver
-pushd package/kernel/mt76
+#pushd package/kernel/mt76
 #sed -i '/mt7662u_rom_patch.bin/a\\techo mt76-usb disable_usb_sg=1 > $\(1\)\/etc\/modules.d\/mt76-usb' Makefile
-popd
+#popd
 
 # Change default shell to zsh
 sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -135,4 +135,7 @@ sed -i 's/192.168.1.1/10.0.2.1/g' package/base-files/files/bin/config_generate
 
 sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 rm -rf target/linux/rockchip/image/armv8.mk
-cp -f $GITHUB_WORKSPACE/armv8.mk target/linux/rockchip/image/armv8.mk
+cp -f ../target/linux/rockchip/image/armv8.mk ./target/linux/rockchip/image/armv8.mk
+
+rm ./package/kernel/linux/modules/video.mk
+cp ../package/kernel/linux/modules/video.mk ./package/kernel/linux/modules/video.mk
