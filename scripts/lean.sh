@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # mt7921
 rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
