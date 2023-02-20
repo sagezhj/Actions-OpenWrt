@@ -1,14 +1,3 @@
-#!/bin/bash
-#=================================================
-# System Required: Linux
-# Version: 1.0
-# Lisence: MIT
-# Author: SuLingGG
-# Blog: https://mlapp.cn
-#=================================================
-
-# 🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
-
 # mt7921
 rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
@@ -42,10 +31,6 @@ pushd package/community
 git clone --depth=1 https://github.com/Lienol/openwrt-package
 rm -rf openwrt-package/verysync
 rm -rf openwrt-package/luci-app-verysync
-# rm -rf openwrt-package/luci-app-control-timewol
-# rm -rf openwrt-package/luci-app-control-webrestriction
-# rm -rf openwrt-package/luci-app-control-weburl
-# rm -rf openwrt-package/luci-app-timecontrol
 
 # Add luci-app-passwall
 git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall
@@ -115,17 +100,6 @@ popd
 pushd package/lean
 svn export https://github.com/immortalwrt/packages/trunk/net/pandownload-fake-server
 popd
-
-# Mod zzz-default-settings
-pushd package/lean/default-settings/files
-export date_version=$(date -d "$(rdate -n -4 -p ntp.aliyun.com)" +'%Y-%m-%d')
-sed -i "s/${orig_version}/${orig_version} (${date_version})/g" zzz-default-settings
-popd
-
-# Fix mt76 wireless driver
-#pushd package/kernel/mt76
-#sed -i '/mt7662u_rom_patch.bin/a\\techo mt76-usb disable_usb_sg=1 > $\(1\)\/etc\/modules.d\/mt76-usb' Makefile
-#popd
 
 # Change default shell to zsh
 sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
