@@ -118,3 +118,6 @@ cp -f ../target/linux/rockchip/image/armv8.mk ./target/linux/rockchip/image/armv
 
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video.mk ./package/kernel/linux/modules/video.mk
+
+# kernel-6.1 h264 h265 vp9
+cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
