@@ -18,11 +18,6 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
 > **默认加了m.2网卡mt791 drive # US/channel-149/30dBm**
 
-### 源代码地址
-- lede https://github.com/DHDAXCW/lede-rockchip
-- Luci https://github.com/DHDAXCW/luci
-- packages https://github.com/DHDAXCW/packages
-
 ### 默认编译
 
 - 用户名：root 密码：password  管理IP：10.0.2.1
@@ -33,9 +28,9 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - 电报群：https://t.me/DHDAXCW
 
 ### 预览
-<img src="./data/home.png"/>
-<img src="./data/wifi.png"/>
-<img src="./data/wireless_list.png"/>
+<img src="./build/data/home.png"/>
+<img src="./build/data/wifi.png"/>
+<img src="./build/data/wireless_list.png"/>
 
 ## 鸣谢
 

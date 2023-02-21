@@ -108,16 +108,15 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.2.1/g' package/base-files/files/bin/config_generate
-
 rm ./target/linux/rockchip/modules.mk
-cp ../target/linux/rockchip/modules.mk ./target/linux/rockchip/modules.mk
+cp ../build/target/linux/rockchip/modules.mk ./target/linux/rockchip/modules.mk
 
 sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 rm -rf target/linux/rockchip/image/armv8.mk
-cp -f ../target/linux/rockchip/image/armv8.mk ./target/linux/rockchip/image/armv8.mk
+cp -f ../build/target/linux/rockchip/image/armv8.mk ./target/linux/rockchip/image/armv8.mk
 
 rm ./package/kernel/linux/modules/video.mk
-cp ../package/kernel/linux/modules/video.mk ./package/kernel/linux/modules/video.mk
+cp ../build/package/kernel/linux/modules/video.mk ./package/kernel/linux/modules/video.mk
 
 # kernel-6.1 h264 h265 vp9
-cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
+cp -r ../build/target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
