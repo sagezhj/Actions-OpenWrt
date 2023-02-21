@@ -309,7 +309,7 @@ jobs:
        
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
-        ../build/build/scripts/lean.sh
+        ../build/scripts/lean.sh
         ../build/scripts/preset-clash-core.sh arm64
         ../build/scripts/preset-terminal-tools.sh
         make defconfig

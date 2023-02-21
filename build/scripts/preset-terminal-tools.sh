@@ -20,13 +20,13 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ./.oh-my-zsh/
 git clone https://github.com/zsh-users/zsh-completions ./.oh-my-zsh/custom/plugins/zsh-completions
 
 # Get .zshrc dotfile
-cp ../build/scripts/.zshrc .
-cp ../build/scripts/update.sh .
+cp ../../../build/scripts/.zshrc .
+cp ../../../build/scripts/update.sh .
 
 popd
 
 mkdir -p files/etc
 pushd files/etc
 # System info
-cp ../build/scripts/sysinfo.sh .
+cp ../../../build/scripts/sysinfo.sh .
 popd
