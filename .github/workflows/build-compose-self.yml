@@ -44,8 +44,8 @@ on:
 
 env:
   REPO_BRANCH: stable
-  CONFIG_FILE: configs/lean/lean_docker.config
-  DIY_SH: scripts/lean.sh
+  CONFIG_FILE: build/configs/lean/lean_docker.config
+  DIY_SH: build/scripts/lean.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai

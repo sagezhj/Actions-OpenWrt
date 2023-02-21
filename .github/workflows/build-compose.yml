@@ -7,7 +7,7 @@ on:
 env:
   SOURCE_URL: https://github.com/DHDAXCW/lede-rockchip
   SOURCE_BRANCH: stable
-  CONFIG_FILE: configs/lean/lean_docker.config
+  CONFIG_FILE: build/configs/lean/lean_docker.config
   TOOLCHAIN_TAG: Toolchain
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -309,7 +309,7 @@ jobs:
        
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
-        ../build/scripts/lean.sh
+        ../build/build/scripts/lean.sh
         ../build/scripts/preset-clash-core.sh arm64
         ../build/scripts/preset-terminal-tools.sh
         make defconfig
