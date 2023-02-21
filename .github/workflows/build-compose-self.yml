@@ -146,7 +146,7 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
-        ../build//$DIY_SH
+        ../$DIY_SH
         ../build/scripts/preset-clash-core.sh arm64
         ../build/scripts/preset-terminal-tools.sh
         make defconfig
