@@ -151,7 +151,7 @@ jobs:
         ../build/scripts/preset-terminal-tools.sh
         make defconfig
         
-    - name: Download DLL
+    - name: Download DL
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: package
       run: |
@@ -170,7 +170,7 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        context: ./
+        context: ./build
         file: ./Dockerfile
         push: true
         tags: ${{ vars.IMAGE }}
@@ -232,7 +232,7 @@ jobs:
         ls -alh ./openwrt
         rm openwrt.tar.zst
 
-    - name: Show DLL
+    - name: Show DL
       run:  ls -lah ./openwrt/dl
       
     - name: Clean

@@ -314,7 +314,7 @@ jobs:
         ../build/scripts/preset-terminal-tools.sh
         make defconfig
         
-    - name: Download DLL
+    - name: Download DL
       id: package
       run: |
         cd $OPENWRTROOT
