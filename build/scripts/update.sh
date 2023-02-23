@@ -20,7 +20,7 @@ tmp_mountpoint=/opt
 NO_NET=''
 
 # gh.flyinbug.top/gh、ghproxy.com
-: ${PROXY:=ghproxy.com}
+: ${PROXY:=gh.flyinbug.top/gh}
 
 # 必须 /tmp 目录里操作
 WORK_DIR=/tmp/update
