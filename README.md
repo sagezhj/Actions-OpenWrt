@@ -13,7 +13,7 @@ SKIP_BACK=1 bash +x ~/update.sh
 # 默认走代理下载，如不需要代理下载固件，执行下面命令
 USE_PROXY=false bash +x ~/update.sh
 
-# 默认使用ghproxy.com代理，自定义代理执行下面命令
+# 默认使用gh.flyinbug.top/gh代理，自定义代理执行下面命令
 PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
 > **默认加了m.2网卡mt791 drive # US/channel-149/30dBm**
@@ -23,7 +23,7 @@ PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - 用户名：root 密码：password  管理IP：10.0.2.1
 - 下载地址： https://github.com/gngpp/NanoPi-R5C/releases
 - 关于r5c刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
-- rkbin下载 https://github.com/gngpp/NanoPi-R5S-R5C/raw/main/data/rk356x-MiniLoaderAll.bin
+- rkbin下载 https://github.com/gngpp/NanoPi-R5C/raw/main/build/data/rk356x-MiniLoaderAll.bin
 - Docker：正式版带docker，有超频，带有docker插件。（对passwall的udp要求很高，不要刷docker版本）
 - 电报群：https://t.me/DHDAXCW
 
