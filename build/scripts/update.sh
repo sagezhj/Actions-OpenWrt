@@ -11,6 +11,7 @@ set -e
 : ${USER_REPO=gngpp/NanoPi-R5C}
 : ${USE_PROXY:=true}
 : ${VERSION:=docker}
+: ${EXPAND:=false} # 默认不扩容
 
 tmp_mountpoint=/opt
 
@@ -270,6 +271,15 @@ function update(){
         gzip -dc ${USER_FILE} > ${USE_FILE} || true
         debug ls -lh ${WORK_DIR}
         success "解压固件文件到: ${USE_FILE}"
+    fi
+    
+    if [ "$EXPAND" = 'true' ];then
+    	if [ "$SKIP_BACK" != false ];then
+	    sysupgrade ${USE_FILE}
+	    
+	else 
+	    sysupgrade -n ${USE_FILE}
+	fi
     fi
     
     truncate -s $bs $USE_FILE
