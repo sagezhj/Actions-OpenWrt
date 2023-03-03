@@ -2,19 +2,20 @@
 ## 👉使用本固件前，请严格遵守国家互联网使用相关法律规定,不要违反国家法律规定！👈
 
 ### 支持在线升级，自动扩容根分区
+> 若非扩容升级则去掉参数EXPAND
 - SSH进入终端
 ```
 # 会保存配置备份
-bash +x ~/update.sh
+EXPAND=true bash +x ~/update.sh
 
 # 跳过备份
-SKIP_BACK=1 bash +x ~/update.sh
+EXPAND=true SKIP_BACK=1 bash +x ~/update.sh
 
 # 默认走代理下载，如不需要代理下载固件，执行下面命令
-USE_PROXY=false bash +x ~/update.sh
+EXPAND=true USE_PROXY=false bash +x ~/update.sh
 
 # 默认使用gh.flyinbug.top/gh代理，自定义代理执行下面命令
-PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
+EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
 > 默认加m.2网卡mt7921/ax200 driver
 
