@@ -11,7 +11,6 @@
 pushd customfeeds
 
 # Add luci-app-onliner (need luci-app-nlbwmon)
-#git clone --depth=1 https://github.com/rufengsuixing/luci-app-onliner
 svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06-k5.4/applications/luci-app-onliner luci/applications/luci-app-onliner
 
 # Add luci-app-udp2raw
