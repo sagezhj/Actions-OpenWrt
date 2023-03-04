@@ -1,3 +1,15 @@
+<div align="center">
+<a href="/LICENSE">
+    <img src="https://img.shields.io/github/license/gngpp/NanoPi-R5C?style=flat&a=1" alt="">
+  </a>
+  </a><a href="https://github.com/gngpp/NanoPi-R5C/releases">
+    <img src="https://img.shields.io/github/release/gngpp/NanoPi-R5C.svg?style=flat">
+  </a><a href="hhttps://github.com/gngpp/NanoPi-R5C/releases">
+    <img src="https://img.shields.io/github/downloads/gngpp/NanoPi-R5C/total?style=flat">
+  </a>
+</div>
+<br>
+
 # NanoPi-R5C
 ## 👉使用本固件前，请严格遵守国家互联网使用相关法律规定,不要违反国家法律规定！👈
 
