@@ -1,13 +1,6 @@
 #!/bin/bash
-#=================================================
-# File name: init-settings.sh
-# System Required: Linux
-# Version: 1.0
-# Lisence: MIT
-# Author: SuLingGG
-# Blog: https://mlapp.cn
-#=================================================
-# Set default theme to luci-theme-argon
+
+# Set default theme to luci-theme-design
 uci set luci.main.mediaurlbase='/luci-static/design'
 
 # Disable opkg signature check
