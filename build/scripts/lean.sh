@@ -69,7 +69,6 @@ git clone --depth=1 https://github.com/lisaac/luci-lib-docker
 # Add luci-theme
 git clone --depth=1 https://github.com/gngpp/luci-app-design-config
 git clone --depth=1 https://github.com/gngpp/luci-theme-design
-git clone --depth=1 https://github.com/gngpp/luci-theme-atmaterial
 
 # Add subconverter
 git clone --depth=1 https://github.com/tindy2013/openwrt-subconverter
