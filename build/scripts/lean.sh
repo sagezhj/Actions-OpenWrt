@@ -9,8 +9,8 @@ rm -rf package/network/services/hostapd
 svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
 svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
 cp -r ../package/kernel/mt76 ./package/kernel/mt76
-rm package/kernel/mac80211/Makefile
-cp -f ../package/kernel/mac80211/Makefile ./package/kernel/mac80211/Makefile
+#rm package/kernel/mac80211/Makefile
+#cp -f ../package/kernel/mac80211/Makefile ./package/kernel/mac80211/Makefile
 cp -f ../package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch ./package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch
 
 # 重启概率卡死，暂时无解
