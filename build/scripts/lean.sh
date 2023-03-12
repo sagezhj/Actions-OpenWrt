@@ -31,6 +31,12 @@ rm -rf feeds/packages/utils/watchcat
 svn co https://github.com/openwrt/packages/trunk/utils/watchcat feeds/packages/utils/watchcat
 git clone https://github.com/gngpp/luci-app-watchcat-plus.git package/luci-app-watchcat-plus
 
+# Add luci-theme
+rm -rf feeds/luci/themes/luci-theme-design
+rm -rf feeds/luci/applications/luci-app-design-config
+git clone --depth=1 https://github.com/gngpp/luci-app-design-config
+git clone --depth=1 https://github.com/gngpp/luci-theme-design
+
 # Clone community packages
 mkdir package/community
 pushd package/community
@@ -70,10 +76,6 @@ rm -rf ../../customfeeds/luci/applications/luci-app-docker
 rm -rf ../../customfeeds/luci/applications/luci-app-dockerman
 git clone --depth=1 https://github.com/lisaac/luci-app-dockerman
 git clone --depth=1 https://github.com/lisaac/luci-lib-docker
-
-# Add luci-theme
-git clone --depth=1 https://github.com/gngpp/luci-app-design-config
-git clone --depth=1 https://github.com/gngpp/luci-theme-design
 
 # Add subconverter
 git clone --depth=1 https://github.com/tindy2013/openwrt-subconverter
