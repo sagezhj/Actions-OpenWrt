@@ -380,6 +380,7 @@ jobs:
          if [ $(echo "$CURRENT > $MAX_DISK_USAGE" | bc) -eq 1 ]; then
             docker rmi $(docker images -q) -f
          fi
+         docker images
 
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
