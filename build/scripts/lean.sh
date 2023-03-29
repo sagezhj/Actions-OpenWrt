@@ -18,6 +18,9 @@ svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hos
 #svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mt76 package/kernel/mt76
 #svn export https://github.com/coolsnowwolf/lede/trunk/package/network/services/hostapd package/network/services/hostapd
 
+# Add wg-quick
+git clone https://github.com/gngpp/wg-quick package/network/utils/wg-quick
+
 # alist
 git clone https://github.com/sbwml/luci-app-alist package/alist
 rm -rf feeds/packages/lang/golang
