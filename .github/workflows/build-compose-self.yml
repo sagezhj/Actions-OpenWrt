@@ -50,7 +50,7 @@ env:
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   IMAGE: ${{ vars.IMAGE }}
-  USE_REPO: repository${{ inputs.repository }}
+  USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   
 jobs:
