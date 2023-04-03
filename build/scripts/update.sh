@@ -238,11 +238,12 @@ function update(){
     if [ -f "${USER_FILE}" ];then
         info "此次使用本地文件: ${USER_FILE} 来升级"
     else
-        latest_release_tag=`get_latest_release ${USER_REPO}`
-        info "准备更新到: '$latest_release_tag'"
 
         board_id=$(cat /etc/board.json | jsonfilter -e '@["model"].id' | sed 's/friendly.*,nanopi-//;s/xunlong,orangepi-//;s/^r2$/r2s/;s/^r1s-h5$/r1s/;s/^r1$/r1s-h3/;s/^r1-plus$/r1p/;s/^r1-plus-lts$/r1p-lts/;s/default-string-default-string/x86/;s/vmware-inc-vmware7-1/x86/;s/qemu-standard-pc-q35-ich9-2009/x86/;s/qemu-standard-pc-i440fx-piix-1996/x86/')
-        IMG_TAG=${VERSION}-friendlyarm_nanopi-${board_id}-${FSTYPE}-sysupgrade.img.gz
+        latest_release_tag=$(echo "$(grep DISTRIB_TARGET /etc/openwrt_release | cut -d "'" -f 2 | tr -d ' ')" | awk '{print tolower($0)}')
+        info "准备更新: '$latest_release_tag/$board_id'"
+
+        IMG_TAG=${VERSION}-${board_id}-${FSTYPE}-sysupgrade.img.gz
 
         # 升级文件不存在
         if [ ! -f "${USER_FILE}" ];then
