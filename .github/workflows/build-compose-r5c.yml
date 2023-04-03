@@ -11,6 +11,7 @@ on:
         type: choice
         options:
           - "https://github.com/DHDAXCW/lede-rockchip"
+          - "https://github.com/coolsnowwolf/lede"
       compose:
         description: Compose jobs
         required: true
