@@ -46,7 +46,7 @@ on:
 env:
   REPO_BRANCH: stable
   CONFIG_FILE: build/configs/lean/r5c_docker.config
-  DIY_SH: build/scripts/target/r5c.sh
+  DIY_SH: build/scripts/diy-config-r5c.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai

@@ -45,7 +45,7 @@ on:
 env:
   REPO_BRANCzH: stable
   CONFIG_FILE: build/configs/lean/r4se_docker.config
-  DIY_SH: build/scripts/target/r4se.sh
+  DIY_SH: build/scripts/diy-config-r4se.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai

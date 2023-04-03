@@ -16,7 +16,7 @@ on:
 
 env:
   CONFIG_FILE: configs/lean/x86_docker.config
-  DIY_SH: scripts/target/x86.sh
+  DIY_SH: scripts/diy-config-x86.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
