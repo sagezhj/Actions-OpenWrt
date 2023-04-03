@@ -1,4 +1,4 @@
-name: build-compose-r5c
+name: build-compose-r4se
 
 on:
   repository_dispatch:
@@ -11,7 +11,6 @@ on:
         type: choice
         options:
           - "https://github.com/DHDAXCW/lede-rockchip"
-          - "https://github.com/coolsnowwolf/lede"
       compose:
         description: Compose jobs
         required: true
@@ -44,9 +43,9 @@ on:
         - "10850K"
 
 env:
-  REPO_BRANCH: stable
-  CONFIG_FILE: build/configs/lean/r5c_docker.config
-  DIY_SH: build/scripts/target/r5c.sh
+  REPO_BRANCzH: stable
+  CONFIG_FILE: build/configs/lean/r4se_docker.config
+  DIY_SH: build/scripts/target/r4se.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -76,7 +75,7 @@ jobs:
         sudo rm -rf /etc/localtime 
         sudo ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
         date
-
+        
     - name: Initialization Environment
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
@@ -108,6 +107,7 @@ jobs:
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         df -hT $PWD
+        echo "using repository: $USE_REPO"
         git clone $USE_REPO openwrt
 
     - name: Reset Version
@@ -122,7 +122,6 @@ jobs:
         #   git reset --hard $COMMIT_ID
         # fi
         rm -rf .git
-
     - name: Clone Custom Feeds
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: update
@@ -153,7 +152,7 @@ jobs:
         ../build/scripts/preset-terminal-tools.sh
         make defconfig
         
-    - name: Download DL
+    - name: Download DLL
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: package
       run: |
@@ -161,12 +160,11 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
+        ls -lah dl
     - name: Comporession
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         tar --zstd -cf openwrt.tar.zst ./openwrt
-
     - name: Build and push
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: docker_build
@@ -233,9 +231,6 @@ jobs:
         tar -xf openwrt.tar.zst
         ls -alh ./openwrt
         rm openwrt.tar.zst
-
-    - name: Show DL
-      run:  ls -lah ./openwrt/dl
       
     - name: Clean
       id: clean
@@ -316,6 +311,7 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
+
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
@@ -348,8 +344,8 @@ jobs:
         rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
         rm -rf config.buildinfo
         rm -rf packages-server.zip
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-ext4-sysupgrade.img.gz docker-friendlyarm_nanopi-r5c-ext4-sysupgrade.img.gz 
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz docker-friendlyarm_nanopi-r5c-squashfs-sysupgrade.img.gz
+        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r4se-ext4-sysupgrade.img.gz docker-friendlyarm_nanopi-r4se-ext4-sysupgrade.img.gz
+        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r4se-squashfs-sysupgrade.img.gz docker-friendlyarm_nanopi-r4se-squashfs-sysupgrade.img.gz
         popd
         make checksum
         mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/docker-sha256sums
@@ -362,7 +358,7 @@ jobs:
           echo "RELEASE_TAG=$(date +"%Y.%m.%d")-lede" >> $GITHUB_OUTPUT
           echo "RELEASE_DATA=$(date +"%Y.%m.%d")" >> $GITHUB_OUTPUT
           touch release.txt
-          echo "后台地址：10.0.2.1
+          echo "后台地址：10.0.1.1
                 默认密码：password
                 docker = 带docker" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
@@ -373,7 +369,7 @@ jobs:
     needs: [CompileFirmware]
 
     steps:
-    
+  
     - name: Remove Images
       if: env.UPLOAD_RELEASE == 'true' && !cancelled() && needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success'
       run: | 
@@ -382,14 +378,14 @@ jobs:
         if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
           docker rmi $(docker images -q) -f
         fi
-         
+
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       if: needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
       env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-          name: ${{ needs.CompileFirmware.outputs.RELEASE_DATE }} NanoPi-R5C-linux-6.1_固件下载
+          name: ${{ needs.CompileFirmware.outputs.RELEASE_DATE }} NanoPi-R4SE-linux-5.4_固件下载
           tag_name: ${{ needs.CompileFirmware.outputs.RELEASE_TAG }}
           body_path: release.txt
           files: ${{ needs.CompileFirmware.outputs.FIRMWARE }}/*

@@ -8,7 +8,7 @@ set -e
 : ${SKIP_BACK:=false} ${DEBUG:=false}
 : ${TEST:=false} # 默认使用 main 分支编译的，test分支是测试阶段
 : ${REPO:=} # lede openwrt
-: ${USER_REPO=gngpp/NanoPi-R5C}
+: ${USER_REPO=gngpp/Actions-OpenWrt}
 : ${USE_PROXY:=true}
 : ${VERSION:=docker}
 : ${EXPAND:=false} # 默认不扩容

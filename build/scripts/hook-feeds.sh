@@ -1,14 +1,4 @@
 #!/bin/bash
-#=================================================
-# File name: hook-feeds.sh
-# System Required: Linux
-# Version: 1.0
-# Lisence: MIT
-# Author: SuLingGG
-# Blog: https://mlapp.cn
-#=================================================
-# Svn checkout packages from immortalwrt's repository
-pushd customfeeds
 
 # Add luci-app-onliner (need luci-app-nlbwmon)
 svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06-k5.4/applications/luci-app-onliner luci/applications/luci-app-onliner
@@ -16,9 +6,6 @@ svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06-k5.4/applicati
 # Add luci-app-udp2raw
 git clone --depth=1 https://github.com/gngpp/luci-app-udp2raw luci/applications/luci-app-udp2raw
 svn co https://github.com/immortalwrt/packages/branches/openwrt-18.06/net/udp2raw packages/net/udp2raw
-
-# Add luci-app-eqos
-# svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos luci/applications/luci-app-eqos
 
 # Add luci-proto-modemmanager
 svn co https://github.com/immortalwrt/luci/trunk/protocols/luci-proto-modemmanager luci/protocols/luci-proto-modemmanager
