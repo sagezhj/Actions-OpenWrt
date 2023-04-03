@@ -10,7 +10,7 @@
 </div>
 <br>
 
-# NanoPi-R5C
+# Actions-OpenWrt
 
 ### 支持在线升级，自动扩容根分区
 > 若非扩容升级则去掉参数EXPAND
