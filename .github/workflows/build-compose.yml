@@ -232,7 +232,7 @@ jobs:
 
     - name: Decompression
       run: | 
-        if [[ -d openwrt ]]; then
+        if [[ -d openwrt-${{ matrix.version }} ]]; then
             rm -rf ./openwrt-${{ matrix.version }}
         fi
         tar -xf openwrt-${{ matrix.version }}.tar.zst
