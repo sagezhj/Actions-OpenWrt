@@ -1,4 +1,4 @@
-name: build-compose-rockchip
+name: build-compose
 
 on:
   repository_dispatch:
@@ -55,10 +55,10 @@ jobs:
 
   DownloadSourceCode:
     strategy:
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         os: [ubuntu-20.04]
-        version: [r5c, r4se]
+        version: [r5c, r4se, x86]
     if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} =="Yes" || ${{ inputs.compile }} == "Yes"
     runs-on: ubuntu-20.04
     outputs:
@@ -187,7 +187,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [r5c, r4se]
+        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [DownloadSourceCode]
@@ -261,7 +261,7 @@ jobs:
   CompileToolchain:
     strategy:
       matrix:
-        version: [r5c, r4se]
+        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileInitialize]
@@ -281,7 +281,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [r5c, r4se]
+        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileInitialize, CompileToolchain]
@@ -377,7 +377,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        version: [r5c, r4se]
+        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileFirmware]
