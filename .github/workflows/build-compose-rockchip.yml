@@ -117,7 +117,7 @@ jobs:
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: reset
       run: |
-        cd openwrt
+        cd openwrt-${{ matrix.version }}
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         rm -rf .git
