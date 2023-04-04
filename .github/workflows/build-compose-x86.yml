@@ -15,8 +15,8 @@ on:
 
 
 env:
-  CONFIG_FILE: configs/lean/x86.config
-  DIY_SH: scripts/diy-config-x86.sh
+  CONFIG_FILE: build/configs/lean/x86.config
+  DIY_SH: build/scripts/diy-config-x86.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
