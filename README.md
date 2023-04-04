@@ -34,7 +34,7 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 
 ### 默认编译
 
-- 用户名：root 密码：password  管理IP：10.0.2.1
+- 用户名：root 密码：password  管理后台：http://openwrt.lan
 - 下载地址： https://github.com/gngpp/NanoPi-R5C/releases
 - 关于r5c刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
 - rkbin下载 https://github.com/gngpp/NanoPi-R5C/raw/main/build/data/rk356x-MiniLoaderAll.bin
