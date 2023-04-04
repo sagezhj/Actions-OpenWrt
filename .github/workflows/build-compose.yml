@@ -55,7 +55,7 @@ jobs:
 
   DownloadSourceCode:
     strategy:
-      max-parallel: 2
+      max-parallel: 3
       matrix:
         os: [ubuntu-20.04]
         version: [r5c, r4se, x86]
