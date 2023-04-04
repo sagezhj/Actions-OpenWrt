@@ -89,14 +89,14 @@ function get_latest_release() {
 
 function github_blob_download_op(){
 
-    sha_url=https://github.com/$USER_REPO/releases/download/$1/${VERSION}-sha256sums
+    sha_url=https://github.com/$USER_REPO/releases/download/$1/${VERSION}-$3-sha256sums
     firmware_url=https://github.com/$USER_REPO/releases/download/$1/$2
     if [ "$USE_PROXY" = 'true' ];then
     	info "启用代理：$PROXY"
         sha_url=https://$PROXY/$sha_url
         firmware_url=https://$PROXY/$firmware_url
     fi
-    info "开始下载hash文件: '$1'/sha256sums"
+    info "开始下载固件hash文件: '$1'/${VERSION}-$3-sha256sums"
     info "link: $sha_url"
     curl --retry 5 --connect-timeout 2 -L $sha_url -o /tmp/sha256sums
 
@@ -243,7 +243,7 @@ function update(){
         latest_release_tag=$(echo "$(grep DISTRIB_TARGET /etc/openwrt_release | cut -d "'" -f 2 | tr -d ' ')" | awk '{print tolower($0)}')
         info "准备更新: $latest_release_tag --- $board_id"
 
-        IMG_TAG=${VERSION}-${board_id}-${FSTYPE}-sysupgrade.img.gz
+        img_tag=${VERSION}-${board_id}-${FSTYPE}-sysupgrade.img.gz
 
         # 升级文件不存在
         if [ ! -f "${USER_FILE}" ];then
@@ -252,7 +252,7 @@ function update(){
                 rm -f ${USER_FILE}
             fi
             if [ ! -f ${USER_FILE} ];then
-                github_blob_download_op ${latest_release_tag} ${IMG_TAG}
+                github_blob_download_op ${latest_release_tag} ${img_tag} ${board_id}
             fi
             info "下载完成"
         fi
