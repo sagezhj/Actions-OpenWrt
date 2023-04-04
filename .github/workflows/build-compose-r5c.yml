@@ -45,12 +45,12 @@ on:
 
 env:
   REPO_BRANCH: stable
-  CONFIG_FILE: build/configs/lean/r5c_docker.config
+  CONFIG_FILE: build/configs/lean/r5c.config
   DIY_SH: build/scripts/diy-config-r5c.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  IMAGE: ${{ vars.IMAGE }}
+  IMAGE: ${{ env.IMAGE }}
   USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   
@@ -175,7 +175,7 @@ jobs:
         context: ./
         file: ./build/Dockerfile
         push: true
-        tags: ${{ vars.IMAGE }}
+        tags: ${{ env.IMAGE }}
         
     - name: Image digest
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}

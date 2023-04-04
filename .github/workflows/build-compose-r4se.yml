@@ -44,12 +44,12 @@ on:
 
 env:
   REPO_BRANCzH: stable
-  CONFIG_FILE: build/configs/lean/r4se_docker.config
+  CONFIG_FILE: build/configs/lean/r4se.config
   DIY_SH: build/scripts/diy-config-r4se.sh
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  IMAGE: ${{ vars.IMAGE }}
+  IMAGE: ${{ env.IMAGE }}
   USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   
@@ -173,7 +173,7 @@ jobs:
         context: ./
         file: ./build/Dockerfile
         push: true
-        tags: ${{ vars.IMAGE }}
+        tags: ${{ env.IMAGE }}
         
     - name: Image digest
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}

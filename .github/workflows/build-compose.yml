@@ -143,7 +143,7 @@ jobs:
     - name: Load Custom Configuration
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
-        CONFIG_FILE="build/configs/lean/${{ matrix.version }}_docker.config"
+        CONFIG_FILE="build/configs/lean/${{ matrix.version }}.config"
         [ -e files ] && mv files $OPENWRTROOT/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
         cd $OPENWRTROOT
@@ -176,7 +176,7 @@ jobs:
         context: ./
         file: ./build/Dockerfile
         push: true
-        tags: ${{ vars.IMAGE }}:${{ matrix.version }}
+        tags: ${{ env.IMAGE }}:${{ matrix.version }}
         
     - name: Image digest
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
