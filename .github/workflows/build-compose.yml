@@ -47,7 +47,7 @@ env:
   KMODS_IN_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  IMAGE: openwrt-build-cache
+  IMAGE: ghcr.io/gngpp/openwrt-build-cache
   USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   
