@@ -1,3 +1,11 @@
+# AX201
+rm -rf package/kernel/mac80211
+rm -rf package/network/services/hostapd
+svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
+svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
+cp -f ../package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch ./package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch
+
+
 # alist
 git clone https://github.com/sbwml/luci-app-alist package/alist
 rm -rf feeds/packages/lang/golang
@@ -107,4 +115,4 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 # Modify default IP
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
-# sed -i 's/5.15/5.4/g' ./target/linux/x86/Makefile
+sed -i 's/5.15/6.1/g' ./target/linux/x86/Makefile
