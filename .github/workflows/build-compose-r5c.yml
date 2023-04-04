@@ -362,10 +362,6 @@ jobs:
           tag="$TARGET/$SUBTARGET"
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
-          touch release.txt
-          echo "后台地址：10.0.2.1
-                默认密码：password
-                docker = 带docker" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
   UploadFirmware:
@@ -392,7 +388,6 @@ jobs:
       with:
           name: ${{ needs.CompileFirmware.outputs.RELEASE_NAME }}
           tag_name: ${{ needs.CompileFirmware.outputs.RELEASE_TAG }}
-          body_path: release.txt
           files: ${{ needs.CompileFirmware.outputs.FIRMWARE }}/*
 
     - name: Remove old Releases
