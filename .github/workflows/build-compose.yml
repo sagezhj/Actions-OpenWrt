@@ -166,7 +166,7 @@ jobs:
     - name: Comporession
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
-        tar --zstd -cf openwrt.tar.zst ./openwrt
+        tar --zstd -cf openwrt.tar.zst ./openwrt-${{ matrix.version }}
 
     - name: Build and push
       if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
@@ -235,7 +235,7 @@ jobs:
         if [[ -d openwrt ]]; then
             rm -rf ./openwrt-${{ matrix.version }}
         fi
-        tar -xf openwrt-${{ matrix.version }}.tar.zst && mv openwrt openwrt-${{ matrix.version }}
+        tar -xf openwrt-${{ matrix.version }}.tar.zst
         ls -alh ./openwrt-${{ matrix.version }}
       
     - name: Clean
