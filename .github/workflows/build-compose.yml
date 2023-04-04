@@ -224,7 +224,7 @@ jobs:
         if [[ -f openwrt.tar.zst ]]; then
             rm openwrt.tar.zst
         fi
-        ID="$(docker create --name openwrt $IMAGE:${{ matrix.version }})"
+        ID="$(docker create --name openwrt-${{ matrix.version }}) $IMAGE:${{ matrix.version }})"
         docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt-${{ matrix.version }}.tar.zst
         docker rm $ID
         docker ps -a
