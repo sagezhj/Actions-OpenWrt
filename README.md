@@ -37,8 +37,3 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - 关于r5c刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
 - rkbin下载 https://github.com/gngpp/NanoPi-R5C/raw/main/build/data/rk356x-MiniLoaderAll.bin
 - 电报群：https://t.me/DHDAXCW
-
-### 预览
-<img src="./build/data/home.png"/>
-<img src="./build/data/wifi.png"/>
-<img src="./build/data/wireless_list.png"/>
