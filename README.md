@@ -4,8 +4,6 @@
   </a>
   </a><a href="https://github.com/gngpp/NanoPi-R5C/releases">
     <img src="https://img.shields.io/github/release/gngpp/NanoPi-R5C.svg?style=flat">
-  </a><a href="hhttps://github.com/gngpp/NanoPi-R5C/releases">
-    <img src="https://img.shields.io/github/downloads/gngpp/NanoPi-R5C/total?style=flat">
   </a>
 </div>
 <br>
