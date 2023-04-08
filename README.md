@@ -2,9 +2,6 @@
 <a href="/LICENSE">
     <img src="https://img.shields.io/github/license/gngpp/NanoPi-R5C?style=flat&a=1" alt="">
   </a>
-  </a><a href="https://github.com/gngpp/NanoPi-R5C/releases">
-    <img src="https://img.shields.io/github/release/gngpp/NanoPi-R5C.svg?style=flat">
-  </a>
 </div>
 <br>
 
