@@ -37,6 +37,11 @@ libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-d
 mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils \
 rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev zstd npm
 ```
+- docker
+```shell
+ curl -fsSL https://test.docker.com -o test-docker.sh
+ sudo sh test-docker.sh
+```
 
 ### 默认编译配置
 
