@@ -41,6 +41,10 @@ rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wg
 ```shell
  curl -fsSL https://test.docker.com -o test-docker.sh
  sudo sh test-docker.sh
+ sudo groupadd docker
+ sudo gpasswd -a ${USER} docker
+ sudo service docker restart
+ newgrp - docker
 ```
 
 ### 默认编译配置
