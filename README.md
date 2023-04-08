@@ -27,7 +27,18 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - R5C 默认m.2网卡mt7921 driver
 - X86 默认AX201 driver
 
-### 默认编译
+### 编译依赖
+```shell
+sudo apt update -y
+sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
+git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev vpnc \
+libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz aria2 lib32gcc-s1 \
+mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils \
+rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev zstd npm
+```
+
+### 默认编译配置
 
 - 用户名：root 密码：password  管理后台：http://openwrt.lan
 - 下载地址： https://github.com/gngpp/NanoPi-R5C/releases
