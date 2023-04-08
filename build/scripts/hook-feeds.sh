@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pushd customfeeds
+
 # Add luci-app-onliner (need luci-app-nlbwmon)
 svn co https://github.com/immortalwrt/luci/branches/openwrt-18.06-k5.4/applications/luci-app-onliner luci/applications/luci-app-onliner
 
@@ -22,3 +24,5 @@ svn co https://github.com/immortalwrt/packages/trunk/net/minieap packages/net/mi
 # Replace smartdns with the official version
 rm -rf packages/net/smartdns
 svn co https://github.com/openwrt/packages/trunk/net/smartdns packages/net/smartdns
+
+popd
