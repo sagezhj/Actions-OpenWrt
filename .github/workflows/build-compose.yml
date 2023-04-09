@@ -41,10 +41,15 @@ on:
         options:
         - "10900T"
         - "10850K"
-
+      kmod:
+        description: kmod in firmware
+        required: true
+        default: false
+        type: boolean
+        
 env:
   REPO_BRANCzH: stable
-  KMODS_IN_FIRMWARE: true
+  KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   IMAGE: ghcr.io/gngpp/openwrt-build-cache
@@ -340,15 +345,14 @@ jobs:
         cp ../build/configs/opkg/distfeeds-packages-server.conf files/etc/opkg/distfeeds.conf.server
         mkdir -p files/etc/opkg/keys
         cp ../build/configs/opkg/1035ac73cc4e59e3 files/etc/opkg/keys/1035ac73cc4e59e3
-        # if "$KMODS_IN_FIRMWARE" = 'true'
-        # then
-        #     mkdir -p files/www/snapshots
-        #     cp -r bin/targets files/www/snapshots
-        #     cp ../build/configs/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
-        # else
-        #     cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
-        # fi
-        cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
+        if "$KMODS_IN_FIRMWARE" = 'true'
+        then
+            mkdir -p files/www/snapshots
+            cp -r bin/targets files/www/snapshots
+            cp ../build/configs/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
+        else
+            cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
+        fi
         cp files/etc/opkg/distfeeds.conf.server files/etc/opkg/distfeeds.conf.mirror
         sed -i "s/http:\/\/192.168.123.100:2345\/snapshots/https:\/\/openwrt.cc\/snapshots\/$(date +"%Y-%m-%d")\/lean/g" files/etc/opkg/distfeeds.conf.mirror
         make package/install -j$(nproc) || make package/install -j1 V=s
