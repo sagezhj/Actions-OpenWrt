@@ -23,7 +23,7 @@ EXPAND=true USE_PROXY=false bash +x ~/update.sh
 # 默认使用gh.flyinbug.top/gh代理，自定义代理执行下面命令
 EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 ```
-- R4SE 默认网卡rtl8821cu driver
+- R4SE 默认网卡rtl8821cu driver （对超频电压微调过，特别适合体制垃圾的RK3399，不存在跑网跑pcdn重启/死机之类）
 - R5C 默认m.2网卡mt7921 driver
 - X86 默认AX201 driver
 
