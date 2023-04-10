@@ -5,6 +5,8 @@
 # svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
 cp -f ../package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch ./package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch
 
+# Add wg-quick
+git clone https://github.com/gngpp/wg-quick package/network/utils/wg-quick
 
 # alist
 git clone https://github.com/sbwml/luci-app-alist package/alist
