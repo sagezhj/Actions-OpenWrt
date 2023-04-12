@@ -123,9 +123,6 @@ sed -i 's/192.168.1.1/10.0.2.1/g' package/base-files/files/bin/config_generate
 rm ./target/linux/rockchip/modules.mk
 cp ../target/linux/rockchip/modules-r5c.mk ./target/linux/rockchip/modules.mk
 
-rm -rf target/linux/rockchip/image/armv8.mk
-cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/armv8.mk
-
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r5c.mk ./package/kernel/linux/modules/video.mk
 
@@ -136,7 +133,11 @@ cp ../target/linux/rockchip/armv8/base-files/etc/inittab ./target/linux/rockchip
 # rm package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
 # cp ../package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
 
+# rm -rf target/linux/rockchip/image/armv8.mk
+# cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/armv8.mk
+
 # kernel-6.1 patches
 cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
 
-sed -i 's/5.15/6.1/g' ./target/linux/x86/Makefile
+
+sed -i 's/5.15/6.1/g' ./target/linux/rockchip/Makefile
