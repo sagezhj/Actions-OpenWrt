@@ -128,5 +128,9 @@ cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r5c.mk ./package/kernel/linux/modules/video.mk
 
+# 2.2G
+rm package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
+cp ../package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
+
 # kernel-6.1 patches
 cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
