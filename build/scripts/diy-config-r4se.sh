@@ -11,6 +11,10 @@ sed -i 's,1608,1800,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-def
 sed -i 's,2016,2208,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-defaults/10-cpufreq
 sed -i 's,1512,1608,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-defaults/10-cpufreq
 
+
+# Add luci-app-xunlei
+git clone https://github.com/gngpp/luci-app-xunlei package/xunlei
+
 # Add wg-quick
 git clone https://github.com/gngpp/wg-quick package/network/utils/wg-quick
 
