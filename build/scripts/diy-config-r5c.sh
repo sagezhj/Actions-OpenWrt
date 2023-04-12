@@ -137,7 +137,5 @@ cp ../target/linux/rockchip/armv8/base-files/etc/inittab ./target/linux/rockchip
 # cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/armv8.mk
 
 # kernel-6.1 patches
-cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
-
-
 sed -i 's/5.15/6.1/g' ./target/linux/rockchip/Makefile
+cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
