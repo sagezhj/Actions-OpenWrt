@@ -133,9 +133,9 @@ cp ../target/linux/rockchip/armv8/base-files/etc/inittab ./target/linux/rockchip
 # rm package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
 # cp ../package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf package/boot/arm-trusted-firmware-rockchip-vendor/src/bin/rk35/rk3568_bl31_v1.28.elf
 
-# rm -rf target/linux/rockchip/image/armv8.mk
-# cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/armv8.mk
+rm -rf target/linux/rockchip/image/armv8.mk
+cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/armv8.mk
 
 # kernel-6.1 patches
-sed -i 's/5.15/6.1/g' ./target/linux/rockchip/Makefile
+sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
