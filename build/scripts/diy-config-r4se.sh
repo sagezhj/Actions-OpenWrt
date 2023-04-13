@@ -12,9 +12,9 @@ sed -i 's,2016,2208,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-def
 sed -i 's,1512,1608,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-defaults/10-cpufreq
 
 # Add luci-app-xunlei
-# git clone https://github.com/gngpp/luci-app-xunlei package/xunlei
-# mkdir -p files/lib/locale
-# curl -Lso files/lib/locale/locale-archive https://github.com/sbwml/r4s_build_script/releases/download/locale/locale-archive
+git clone https://github.com/gngpp/luci-app-xunlei package/xunlei
+mkdir -p files/lib/locale
+curl -Lso files/lib/locale/locale-archive https://github.com/sbwml/r4s_build_script/releases/download/locale/locale-archive
 
 # Add wg-quick
 git clone https://github.com/gngpp/wg-quick package/network/utils/wg-quick
@@ -141,7 +141,6 @@ svn export https://github.com/DHDAXCW/packages/trunk/utils/coremark customfeeds/
 # wget -P target/linux/rockchip/armv8/base-files/usr/bin/ https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3399/base-files/usr/bin/start-rk3399-pwm-fan.sh
 
 #kernel
-sed -i 's/6.1/5.4/g' ./target/linux/rockchip/Makefile
 rm -rf ./target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 cp ../target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch ./target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 
