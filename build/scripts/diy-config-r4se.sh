@@ -140,13 +140,15 @@ svn export https://github.com/DHDAXCW/packages/trunk/utils/coremark customfeeds/
 # wget -P target/linux/rockchip/armv8/base-files/etc/init.d/ https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3399/base-files/etc/init.d/fa-rk3399-pwmfan
 # wget -P target/linux/rockchip/armv8/base-files/usr/bin/ https://github.com/friendlyarm/friendlywrt/raw/master-v19.07.1/target/linux/rockchip-rk3399/base-files/usr/bin/start-rk3399-pwm-fan.sh
 
+# kernel
+sed -i 's/6.1/5.4/g' ./target/linux/rockchip/Makefile
+
 # overclock
 rm -rf ./target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 cp ../target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch ./target/linux/rockchip/patches-5.4/992-rockchip-rk3399-overclock-to-2.2-1.8-GHz-for-NanoPi4.patch
 
-# rockchip: add drm and lima gpu driver
+# rockchip gpu driver
 rm ./target/linux/rockchip/modules.mk
 cp ../target/linux/rockchip/modules-r4se.mk ./target/linux/rockchip/modules.mk
-
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r4se.mk ./package/kernel/linux/modules/video.mk
