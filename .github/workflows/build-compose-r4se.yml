@@ -36,7 +36,7 @@ env:
   
 jobs:
 
-  DownloadSourceCode:
+  CompileInitialize:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
@@ -105,28 +105,6 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         ls -lah dl
-  
-  CompileInitialize:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
-    timeout-minutes: 1440
-    needs: [DownloadSourceCode]
-
-    outputs:
-      OPENWRTROOT: ${{ steps.init.outputs.OPENWRTROOT }}
-
-    steps:
-
-    - name: Initialization Environment
-      id: init
-      run: |
-        cd ${{ needs.DownloadSourceCode.outputs.OPENWRTROOT }}
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-    
-    - name: Show config
-      run: |
-        cd $OPENWRTROOT
-        cat .config
 
   CompileToolchain:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
