@@ -42,20 +42,6 @@ jobs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
     steps:
 
-    - name: Show choice
-      run: |
-        echo "Repository choice=${{ inputs.repository }}"
-        echo "Download choice=${{ inputs.download }}"
-        echo "Compile choice=${{ inputs.compile }}"
-        echo "Compose choice=${{ inputs.compose }}"
-        echo "Compile machine=${{ inputs.machine }}"
-
-    - name: Set Timezone
-      run: |
-        sudo rm -rf /etc/localtime 
-        sudo ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-        date
-        
     - name: Initialization Environment
       run: |
         echo "警告⚠"
