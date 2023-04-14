@@ -115,7 +115,6 @@ jobs:
         make defconfig
         
     - name: Download DLL
-      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: package
       run: |
         cd $OPENWRTROOT
