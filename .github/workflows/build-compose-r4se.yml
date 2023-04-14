@@ -37,7 +37,7 @@ env:
 jobs:
 
   DownloadSourceCode:
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     outputs:
       OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
     steps:
