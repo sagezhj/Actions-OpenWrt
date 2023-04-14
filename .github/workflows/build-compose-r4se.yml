@@ -39,7 +39,7 @@ jobs:
   CompileInitialize:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     outputs:
-      OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
+      OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
     steps:
 
     - name: Initialization Environment
@@ -57,21 +57,17 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Clone Source Code
+       id:clone
       run: |
         df -hT $PWD
         echo "using repository: $USE_REPO"
         git clone $USE_REPO openwrt
-
-    - name: Reset Version
-      id: reset
-      run: |
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         rm -rf .git
 
     - name: Clone Custom Feeds
-      id: update
       run: |
         cd $OPENWRTROOT
         mkdir customfeeds
