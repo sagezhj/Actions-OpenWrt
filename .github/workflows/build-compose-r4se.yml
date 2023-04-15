@@ -26,7 +26,7 @@ on:
         type: boolean
 
 env:
-  REPO_BRANCzH: stable
+  REPO_BRANCH: stable
   CONFIG_FILE: build/configs/lean/r4se.config
   DIY_SH: build/scripts/diy-config-r4se.sh
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
@@ -61,7 +61,7 @@ jobs:
       run: |
         df -hT $PWD
         echo "using repository: $USE_REPO"
-        git clone $USE_REPO openwrt
+        git clone -b$REPO_BRANCH $USE_REPO openwrt
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
@@ -105,13 +105,12 @@ jobs:
   CompileToolchain:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
-    needs: [CompileInitialize]
-
+    needs: CompileInitialize
     steps:
     - name: Compile toolchain
       id: compile
       run: | 
-        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
+        cd ${{needs.CompileInitialize.outputs.OPENWRTROOT}}
         echo -e "$(nproc) thread compile"
         make tools/compile -j$(nproc)
         make toolchain/compile -j$(nproc)
