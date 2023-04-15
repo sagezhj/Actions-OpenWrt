@@ -11,6 +11,28 @@ on:
         type: choice
         options:
           - "https://github.com/DHDAXCW/lede-rockchip"
+      compose:
+        description: Compose jobs
+        required: true
+        default: "Yes"
+        type: choice
+        options:
+          - "Yes"
+          - "No"
+      download:
+        description: Download source code
+        default: "No"
+        type: choice
+        options:
+          - "Yes"
+          - "No"
+      compile:
+        description: Compile source code
+        default: "No"
+        type: choice
+        options:
+          - "Yes"
+          - "No"
       machine:
         description: 'Compile machine'
         required: true
@@ -26,24 +48,44 @@ on:
         type: boolean
 
 env:
-  REPO_BRANCH: stable
+  REPO_BRANCzH: stable
   CONFIG_FILE: build/configs/lean/r4se.config
   DIY_SH: build/scripts/diy-config-r4se.sh
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  IMAGE: ghcr.io/gngpp/openwrt-build-cache:r4se
   USE_REPO: ${{ inputs.repository }}
+  COMMIT_ID: ${{ vars.COMMIT_ID }}
   
 jobs:
 
-  CompileInitialize:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
+  DownloadSourceCode:
+    if: ${{ inputs.download }} == "Yes" || ${{ inputs.compose }} =="Yes" || ${{ inputs.compile }} == "Yes"
+    runs-on: ubuntu-20.04
     outputs:
-      OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
+      OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
     steps:
 
-    - name: Initialization Environment
+    - name: Show choice
       run: |
+        echo "Repository choice=${{ inputs.repository }}"
+        echo "Download choice=${{ inputs.download }}"
+        echo "Compile choice=${{ inputs.compile }}"
+        echo "Compose choice=${{ inputs.compose }}"
+        echo "Compile machine=${{ inputs.machine }}"
+    - name: Set Timezone
+      run: |
+        sudo rm -rf /etc/localtime 
+        sudo ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+        date
+        
+    - name: Initialization Environment
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
         echo "--------------------------CPU信息--------------------------"
         echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
         echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
@@ -54,20 +96,38 @@ jobs:
         echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
     
     - name: Checkout
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       uses: actions/checkout@v3
 
+    - name: Login to Docker Hub
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.TOKEN }}
+        
     - name: Clone Source Code
-       id:clone
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         df -hT $PWD
         echo "using repository: $USE_REPO"
-        git clone -b$REPO_BRANCH $USE_REPO openwrt
+        git clone $USE_REPO openwrt
+    - name: Reset Version
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      id: reset
+      run: |
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
+        # if $USE_REPO == "https://github.com/DHDAXCW/lede-rockchip"; then
+        #   echo "COMMIT_ID version: $COMMIT_ID"
+        #   git reset --hard $COMMIT_ID
+        # fi
         rm -rf .git
-
     - name: Clone Custom Feeds
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      id: update
       run: |
         cd $OPENWRTROOT
         mkdir customfeeds
@@ -77,12 +137,14 @@ jobs:
         ../build/scripts/hook-feeds.sh
   
     - name: Update And install Feeds
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: | 
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
         ../build/scripts/feeds_settings.sh
         
     - name: Load Custom Configuration
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       run: |
         [ -e files ] && mv files $OPENWRTROOT/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
@@ -94,6 +156,7 @@ jobs:
         make defconfig
         
     - name: Download DLL
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
       id: package
       run: |
         cd $OPENWRTROOT
@@ -101,16 +164,103 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         ls -lah dl
+    - name: Comporession
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      run: |
+        tar --zstd -cf openwrt.tar.zst ./openwrt
+    - name: Build and push
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: ./
+        file: ./build/Dockerfile
+        push: true
+        tags: ${{ env.IMAGE }}
+        
+    - name: Image digest
+      if: ${{ inputs.download == 'Yes' || inputs.compose == 'Yes' }}
+      run: echo ${{ steps.docker_build.outputs.digest }}
 
+  CompileInitialize:
+    if: inputs.compile || inputs.compose
+    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
+    timeout-minutes: 1440
+    needs: [DownloadSourceCode]
+
+    outputs:
+      OPENWRTROOT: ${{ steps.clean.outputs.OPENWRTROOT }}
+
+    steps:
+  
+    - name: Initialization Environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        echo -e "Total CPU cores\t: $(nproc)"
+        cat /proc/cpuinfo | grep 'model name'
+        free -h
+        uname -a
+        [ -f /proc/version ] && cat /proc/version
+        [ -f /etc/issue.net ] && cat /etc/issue.net
+        [ -f /etc/issue ] && cat /etc/issue
+        ulimit -a
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Pull Image
+      run: |
+        docker pull $IMAGE
+        docker images
+    
+    - name: Copy Files
+      id: copy
+      run: |
+        if [[ -f openwrt.tar.zst ]]; then
+            rm openwrt.tar.zst
+        fi
+        ID="$(docker create --name openwrt "$IMAGE")"
+        docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
+        docker rm $ID
+        docker ps -a
+        ls -alh
+    - name: Decompression
+      run: | 
+        if [[ -d openwrt ]]; then
+            rm -rf ./openwrt
+        fi
+        tar -xf openwrt.tar.zst
+        ls -alh ./openwrt
+        rm openwrt.tar.zst
+      
+    - name: Clean
+      id: clean
+      run: |
+        cd openwrt
+        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
+        rm -rf ./tmp && rm -rf ./build_dir
+    
+    - name: Feeds Settings
+      run: | 
+        cd $OPENWRTROOT
+        chmod +x ../build/scripts/*.sh
+        ../build/scripts/feeds_settings.sh
+        make defconfig
+    - name: Show config
+      run: |
+        cd $OPENWRTROOT
+        cat .config
   CompileToolchain:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
-    needs: CompileInitialize
+    needs: [CompileInitialize]
+
     steps:
     - name: Compile toolchain
       id: compile
       run: | 
-        cd ${{needs.CompileInitialize.outputs.OPENWRTROOT}}
+        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
         echo -e "$(nproc) thread compile"
         make tools/compile -j$(nproc)
         make toolchain/compile -j$(nproc)
@@ -160,7 +310,6 @@ jobs:
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
-
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
@@ -208,7 +357,6 @@ jobs:
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
-
   UploadFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
@@ -224,7 +372,6 @@ jobs:
         if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
           docker rmi $(docker images -q) -f
         fi
-
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       if: needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
