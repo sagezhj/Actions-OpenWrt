@@ -31,9 +31,6 @@ git clone https://github.com/sbwml/luci-app-alist package/alist
 rm -rf feeds/packages/lang/golang
 svn export https://github.com/sbwml/packages_lang_golang/branches/19.x feeds/packages/lang/golang
 
-# speedtest
-git clone https://github.com/sirpdboy/netspeedtest.git package/netspeedtest
- 
 # Add luci-app-watchcat-plus
 rm -rf feeds/packages/utils/watchcat
 svn co https://github.com/openwrt/packages/trunk/utils/watchcat feeds/packages/utils/watchcat
