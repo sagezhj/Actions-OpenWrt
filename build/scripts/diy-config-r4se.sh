@@ -152,3 +152,7 @@ rm ./target/linux/rockchip/modules.mk
 cp ../target/linux/rockchip/modules-r4se.mk ./target/linux/rockchip/modules.mk
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r4se.mk ./package/kernel/linux/modules/video.mk
+
+# docker
+cp ../package/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch ./package/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch
+cp ../package/utils/dockerd/patches/dockerd-fix-bridge-network.patch ./package/utils/dockerd/patches/dockerd-fix-bridge-network.patch
