@@ -154,5 +154,5 @@ rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r4se.mk ./package/kernel/linux/modules/video.mk
 
 # docker
-cp ../package/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch ./package/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch
-cp ../package/utils/dockerd/patches/dockerd-fix-bridge-network.patch ./package/utils/dockerd/patches/dockerd-fix-bridge-network.patch
+cp ../package/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch ./customfeeds/packages/utils/dockerd/patches/0001-dockerd-defer-starting-docker-service.patch
+cp ../package/utils/dockerd/patches/dockerd-fix-bridge-network.patch ./customfeeds/packages/utils/dockerd/patches/dockerd-fix-bridge-network.patch
