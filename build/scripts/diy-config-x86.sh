@@ -118,5 +118,3 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
 sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
 # sed -i 's/5.15/6.1/g' ./target/linux/x86/Makefile
-# docker
-cp ../build/docker/build/patch/docker/001-libdevmapper_name_fix.patch ./customfeeds/packages/utils/dockerd/patches/build/patch/docker/001-libdevmapper_name_fix.patch

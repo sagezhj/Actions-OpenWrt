@@ -152,6 +152,3 @@ rm ./target/linux/rockchip/modules.mk
 cp ../target/linux/rockchip/modules-r4se.mk ./target/linux/rockchip/modules.mk
 rm ./package/kernel/linux/modules/video.mk
 cp ../package/kernel/linux/modules/video-r4se.mk ./package/kernel/linux/modules/video.mk
-
-# docker
-cp ../build/docker/build/patch/docker/001-libdevmapper_name_fix.patch ./customfeeds/packages/utils/dockerd/patches/build/patch/docker/001-libdevmapper_name_fix.patch
