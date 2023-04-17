@@ -4,19 +4,10 @@
 rm -rf package/kernel/rtl8821cu
 rm -rf package/kernel/mac80211
 rm -rf package/network/services/hostapd
-# rm -rf package/kernel/mt76
 
 svn export https://github.com/openwrt/openwrt/trunk/package/kernel/mac80211 package/kernel/mac80211
 svn export https://github.com/openwrt/openwrt/trunk/package/network/services/hostapd package/network/services/hostapd
-#cp -r ../package/kernel/mt76 ./package/kernel/mt76
-#rm package/kernel/mac80211/Makefile
-#cp -f ../package/kernel/mac80211/Makefile ./package/kernel/mac80211/Makefile
-#cp -f ../package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch ./package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch
-
-# 重启概率卡死，暂时无解
-#svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mac80211 package/kernel/mac80211
-#svn export https://github.com/coolsnowwolf/lede/trunk/package/kernel/mt76 package/kernel/mt76
-#svn export https://github.com/coolsnowwolf/lede/trunk/package/network/services/hostapd package/network/services/hostapd
+#cp -f ../build/patch/hostapd/800-hostapd-2.10-lar.patch ./package/network/services/hostapd/patches/800-hostapd-2.10-lar.patch
 
 # Add luci-app-xunlei
 git clone https://github.com/gngpp/luci-app-xunlei package/xunlei
