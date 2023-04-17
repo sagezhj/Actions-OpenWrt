@@ -7,6 +7,11 @@
 
 # Actions-OpenWrt
 
+### 插件预览
+![image](https://user-images.githubusercontent.com/51810656/232373515-9ee2b8b4-19de-4723-89e8-66b8b51f5d7f.png)
+![image](https://user-images.githubusercontent.com/51810656/232373585-5fc59ffe-1636-499a-9edd-d84e65b6e35e.png)
+
+
 ### 支持在线升级，自动扩容根分区
 
 > 若非扩容升级则去掉参数EXPAND
