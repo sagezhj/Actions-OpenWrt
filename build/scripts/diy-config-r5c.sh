@@ -132,3 +132,6 @@ cp -f ../target/linux/rockchip/image/armv8-r5c.mk ./target/linux/rockchip/image/
 # kernel-6.1 patches
 sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 cp -r ../target/linux/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
+
+# docker
+cp ../build/docker/build/patch/docker/001-libdevmapper_name_fix.patch ./customfeeds/packages/utils/dockerd/patches/build/patch/docker/001-libdevmapper_name_fix.patch
