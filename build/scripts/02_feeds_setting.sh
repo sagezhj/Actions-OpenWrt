@@ -40,8 +40,8 @@ git clone https://github.com/gngpp/luci-app-watchcat-plus.git luci/applications/
 # Add luci-theme
 rm -rf luci/themes/luci-theme-design
 rm -rf luci/applications/luci-app-design-config
-git clone --depth=1 https://github.com/gngpp/luci-app-design-config luci/themes/luci-theme-design
-git clone --depth=1 https://github.com/gngpp/luci-theme-design luci/applications/luci-app-design-config
+git clone --depth=1 https://github.com/gngpp/luci-theme-design luci/themes/luci-theme-design 
+git clone --depth=1 https://github.com/gngpp/luci-app-design-config luci/applications/luci-app-design-config
 
 # delete coremark
 rm -rf packages/utils/coremark
