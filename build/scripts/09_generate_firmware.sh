@@ -1,11 +1,9 @@
 #!/bin/bash
 
-if [ -n "$MODEL" ] && [ "$MODEL" == "r4se" ]; then 
-
 OPENWRTROOT=$(pwd)
 export OPENWRTROOT
 
-pushd ../build/configs/opkg
+pushd ../build/opkg
 sed -i "s/subtarget/$SUBTARGET/g" distfeeds*.conf
 sed -i "s/target\//$TARGET\//g" distfeeds*.conf
 sed -i "s/platform/$PLATFORM/g" distfeeds*.conf
@@ -15,17 +13,17 @@ mkdir -p files/etc/uci-defaults/
 cp ../build/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
 
 mkdir -p files/etc/opkg
-cp ../build/configs/opkg/distfeeds-packages-server.conf files/etc/opkg/distfeeds.conf.server
+cp ../build/opkg/distfeeds-packages-server.conf files/etc/opkg/distfeeds.conf.server
 
 mkdir -p files/etc/opkg/keys
-cp ../build/configs/opkg/1035ac73cc4e59e3 files/etc/opkg/keys/1035ac73cc4e59e3
+cp ../build/opkg/1035ac73cc4e59e3 files/etc/opkg/keys/1035ac73cc4e59e3
 
 if [ -n "$KMODS_IN_FIRMWARE" ] && [ "$KMODS_IN_FIRMWARE" == "true" ]; then
     mkdir -p files/www/snapshots
     cp -r bin/targets files/www/snapshots
-    cp ../build/configs/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
+    cp ../build/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
 else
-    cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
+    cp ../build//opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
 fi
 
 cp files/etc/opkg/distfeeds.conf.server files/etc/opkg/distfeeds.conf.mirror

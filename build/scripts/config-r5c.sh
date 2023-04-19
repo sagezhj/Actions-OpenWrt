@@ -32,4 +32,4 @@ sed -i 's/5.4/6.1/g' ./target/linux/rockchip/Makefile
 cp -r ../build/patch/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
 
 # build config
-cp ../build/configs/lean/r5c.config .config
+cp ../build/r5c.config .config
