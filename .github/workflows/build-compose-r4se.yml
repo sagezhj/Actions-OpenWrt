@@ -33,6 +33,8 @@ env:
   IMAGE: ghcr.io/gngpp/openwrt-build-cache:r4se
   USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
+  VERSION: docker
+  MODE: r4se
   
 jobs:
 
@@ -286,7 +288,7 @@ jobs:
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
-          
+
   UploadFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
