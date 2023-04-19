@@ -170,7 +170,7 @@ jobs:
         if [[ -f openwrt.tar.zst ]]; then
             rm openwrt.tar.zst
         fi
-        ID="$(docker create --name openwrt "$IMAGE")"
+        ID="$(docker create --name openwrt "${{ needs.DownloadSourceCode.outputs.IMAGE }}")"
         docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
         docker rm $ID
         docker ps -a
