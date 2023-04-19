@@ -1,4 +1,5 @@
 #!/bin/bash
+
 IMAGE="ghcr.io/gngpp/openwrt-build-cache:"
 if [ -n "$MODEL" ] && [ "$MODEL" == "r4se" ]; then 
     IMAGE=$IMAGE:$MODEL_$VERSION

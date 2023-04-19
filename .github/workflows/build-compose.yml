@@ -86,7 +86,7 @@ jobs:
     - name: Clone Source Code
       id: clone
       run: |
-        ../build/scripts/00_source_code.sh
+        build/scripts/00_source_code.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
