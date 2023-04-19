@@ -86,7 +86,7 @@ jobs:
     - name: Clone Source Code
       id: clone
       run: |
-        source ../build/scripts/00_source_code.sh
+        ../build/scripts/00_source_code.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
@@ -96,28 +96,28 @@ jobs:
       id: update
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/01_feeds_setting.sh
-        source ../build/scripts/02_feeds_update.sh
+        ../build/scripts/01_feeds_setting.sh
+        ../build/scripts/02_feeds_update.sh
   
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/03_community_package.sh arm64
+        ../build/scripts/03_community_package.sh arm64
         
     - name: Ssystem Settings
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/04_system_setting.sh
+        ../build/scripts/04_system_setting.sh
      
     - name: Defconfig
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/config-r4se.sh
+        ../build/scripts/config-$MODEL.sh
 
     - name: Download DL
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/05_download_dl.sh
+        ../build/scripts/05_download_dl.sh
         
     - name: Comporession
       run: |
@@ -200,7 +200,7 @@ jobs:
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/02_feeds_update.sh
+        ../build/scripts/02_feeds_update.sh
 
     - name: Show config
       run: |
@@ -220,7 +220,7 @@ jobs:
         OPENWRTROOT=$(pwd)
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        source ../build/scripts/05_compile_toolchain.sh
+        ../build/scripts/05_compile_toolchain.sh
   
   CompileFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
@@ -244,7 +244,7 @@ jobs:
       id: compile
       run: |
         cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
-        source ../build/scripts/06_compile_package.sh
+        ../build/scripts/06_compile_package.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
