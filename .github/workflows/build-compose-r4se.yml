@@ -4,13 +4,6 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      repository:
-        description: Use openwrt repository
-        required: true
-        default: "https://github.com/DHDAXCW/lede-rockchip"
-        type: choice
-        options:
-          - "https://github.com/DHDAXCW/lede-rockchip"
       machine:
         description: 'Compile machine'
         required: true
@@ -26,15 +19,13 @@ on:
         type: boolean
 
 env:
-  REPO_BRANCH: stable
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
   IMAGE: ghcr.io/gngpp/openwrt-build-cache:r4se
-  USE_REPO: ${{ inputs.repository }}
   COMMIT_ID: ${{ vars.COMMIT_ID }}
   VERSION: docker
-  MODE: r4se
+  MODEL: r4se
   
 jobs:
 

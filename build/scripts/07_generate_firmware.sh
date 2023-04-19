@@ -37,8 +37,8 @@ rm -rf openwrt-rockchip-armv8.manifest
 rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
 rm -rf config.buildinfo
 rm -rf packages-server.zip
-mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODE-ext4-sysupgrade.img.gz $VERSION-$MODE-ext4-sysupgrade.img.gz
-mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODE-squashfs-sysupgrade.img.gz $VERSION-$MODE-squashfs-sysupgrade.img.gz
+mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODEL-ext4-sysupgrade.img.gz $VERSION-$MODEL-ext4-sysupgrade.img.gz
+mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODEL-squashfs-sysupgrade.img.gz $VERSION-$MODEL-squashfs-sysupgrade.img.gz
 popd
 make checksum
-mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/$VERSION-$MODE-sha256sums
+mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/$VERSION-$MODEL-sha256sums

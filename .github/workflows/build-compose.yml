@@ -4,13 +4,6 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      repository:
-        description: Use openwrt repository
-        required: true
-        default: "https://github.com/DHDAXCW/lede-rockchip"
-        type: choice
-        options:
-          - "https://github.com/DHDAXCW/lede-rockchip"
       machine:
         description: 'Compile machine'
         required: true
@@ -19,40 +12,42 @@ on:
         options:
         - "10900T"
         - "10850K"
+      model:
+        description: Compile model firmware
+        required: true
+        type: choice
+        options:
+          - "r4se"
+          - "r5c"
+          - "x86"
+      version:
+        description: Compile model version firmware
+        required: true
+        default: docker
+        type: choice
+        options:
+          - "docker"
       kmod:
         description: kmod in firmware
         required: true
         default: false
         type: boolean
-        
+
 env:
-  REPO_BRANCzH: stable
+  MODEL: ${{ inputs.model }}
+  VERSION: ${{ inputs.version }}
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  IMAGE: ghcr.io/gngpp/openwrt-build-cache
-  USE_REPO: ${{ inputs.repository }}
   
 jobs:
 
   DownloadSourceCode:
-    strategy:
-      max-parallel: 3
-      matrix:
-        os: [ubuntu-20.04]
-        version: [r5c, r4se, x86]
     runs-on: ubuntu-20.04
     outputs:
-      OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
+      OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
+      IMAGE: ${{ steps.clone.outputs.IMAGE }}
     steps:
-
-    - name: Show choice
-      run: |
-        echo "Repository choice=${{ inputs.repository }}"
-        echo "Download choice=${{ inputs.download }}"
-        echo "Compile choice=${{ inputs.compile }}"
-        echo "Compose choice=${{ inputs.compose }}"
-        echo "Compile machine=${{ inputs.machine }}"
 
     - name: Set Timezone
       run: |
@@ -76,6 +71,10 @@ jobs:
     
     - name: Checkout
       uses: actions/checkout@v3
+      
+    - name: Chmod scripts
+      run: |
+        chmod +x build/scripts/*.sh
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
@@ -85,59 +84,44 @@ jobs:
         password: ${{ secrets.TOKEN }}
         
     - name: Clone Source Code
+      id: clone
       run: |
-        df -hT $PWD
-        echo "using repository: $USE_REPO"
-        git clone $USE_REPO openwrt-${{ matrix.version }}
+        source ../build/scripts/00_source_code.sh
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
-    - name: Reset Version
-      id: reset
-      run: |
-        cd openwrt-${{ matrix.version }}
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        rm -rf .git
-
-    - name: Clone Custom Feeds
+    - name: Feeds Settings
       id: update
       run: |
         cd $OPENWRTROOT
-        mkdir customfeeds
-        git clone --depth=1 https://github.com/DHDAXCW/packages customfeeds/packages
-        git clone --depth=1 https://github.com/DHDAXCW/luci customfeeds/luci
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/hook-feeds.sh
+        source ../build/scripts/01_feeds_setting.sh
+        source ../build/scripts/02_feeds_update.sh
   
-    - name: Update And install Feeds
+    - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/feeds_settings.sh
+        source ../build/scripts/03_community_package.sh arm64
         
-    - name: Load Custom Configuration
-      run: |
-        CONFIG_FILE="build/configs/lean/${{ matrix.version }}.config"
-        [ -e files ] && mv files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
-        cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/diy-config-${{ matrix.version }}.sh
-        ../build/scripts/03_system_settings.sh
-        make defconfig
-        
-    - name: Download DLL
-      id: package
+    - name: Ssystem Settings
       run: |
         cd $OPENWRTROOT
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        ls -lah dl
+        source ../build/scripts/04_system_setting.sh
+     
+    - name: Defconfig
+      run: |
+        cd $OPENWRTROOT
+        source ../build/scripts/config-r4se.sh
 
+    - name: Download DL
+      run: |
+        cd $OPENWRTROOT
+        source ../build/scripts/05_download_dl.sh
+        
     - name: Comporession
       run: |
-        tar --zstd -cf openwrt.tar.zst ./openwrt-${{ matrix.version }}
-
+        tar --zstd -cf openwrt.tar.zst ./openwrt
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
@@ -145,23 +129,18 @@ jobs:
         context: ./
         file: ./Dockerfile
         push: true
-        tags: ${{ env.IMAGE }}:${{ matrix.version }}
+        tags: ${{ env.IMAGE }}
         
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
 
   CompileInitialize:
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [DownloadSourceCode]
 
     outputs:
       OPENWRTROOT: ${{ steps.clean.outputs.OPENWRTROOT }}
-
     steps:
   
     - name: Initialization Environment
@@ -182,7 +161,7 @@ jobs:
       
     - name: Pull Image
       run: |
-        docker pull $IMAGE:${{ matrix.version }}
+        docker pull ${{ needs.DownloadSourceCode.outputs.IMAGE }}
         docker images
     
     - name: Copy Files
@@ -191,34 +170,37 @@ jobs:
         if [[ -f openwrt.tar.zst ]]; then
             rm openwrt.tar.zst
         fi
-        ID="$(docker create --name openwrt-${{ matrix.version }} $IMAGE:${{ matrix.version }})"
-        docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt-${{ matrix.version }}.tar.zst
+        ID="$(docker create --name openwrt "$IMAGE")"
+        docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
         docker rm $ID
         docker ps -a
         ls -alh
 
     - name: Decompression
       run: | 
-        if [[ -d openwrt-${{ matrix.version }} ]]; then
-            rm -rf ./openwrt-${{ matrix.version }}
+        if [[ -d openwrt ]]; then
+            rm -rf ./openwrt
         fi
-        tar -xf openwrt-${{ matrix.version }}.tar.zst
-        ls -alh ./openwrt-${{ matrix.version }}
+        tar -xf openwrt.tar.zst
+        ls -alh ./openwrt
+        rm openwrt.tar.zst
       
     - name: Clean
       id: clean
       run: |
-        cd openwrt-${{ matrix.version }}
+        cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         rm -rf ./tmp && rm -rf ./build_dir
-    
+
+    - name: Chmod scripts
+      run: |
+        chmod +x build/scripts/*.sh
+
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/feeds_settings.sh
-        make defconfig
+        source ../build/scripts/02_feeds_update.sh
 
     - name: Show config
       run: |
@@ -226,9 +208,6 @@ jobs:
         cat .config
 
   CompileToolchain:
-    strategy:
-      matrix:
-        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileInitialize]
@@ -238,20 +217,15 @@ jobs:
       id: compile
       run: | 
         cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
-        echo -e "$(nproc) thread compile"
-        make tools/compile -j$(nproc)
-        make toolchain/compile -j$(nproc)
-        make target/compile -j$(nproc)
-        make diffconfig
+        OPENWRTROOT=$(pwd)
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
+        source ../build/scripts/05_compile_toolchain.sh
   
   CompileFirmware:
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
-    needs: [CompileInitialize, CompileToolchain]
+    needs: [CompileToolchain]
 
     outputs:
       OPENWRTROOT: ${{ steps.compile.outputs.OPENWRTROOT }}
@@ -269,66 +243,26 @@ jobs:
     - name: Compile package
       id: compile
       run: |
-        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
-        OPENWRTROOT=$(pwd)
+        cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
+        source ../build/scripts/06_compile_package.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        echo -e "$(nproc) thread compile"
-        make package/compile -j$(nproc) || make package/compile -j$(nproc)
-        make package/index
-        cd $OPENWRTROOT/bin/packages/*
-        PLATFORM=$(basename `pwd`)
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
         echo "PLATFORM=$PLATFORM" >> $GITHUB_OUTPUT
-        cd $OPENWRTROOT/bin/targets/*
-        TARGET=$(basename `pwd`)
         echo "TARGET=$TARGET" >> $GITHUB_ENV
         echo "TARGET=$TARGET" >> $GITHUB_OUTPUT
-        cd *
-        SUBTARGET=$(basename `pwd`)
         echo "SUBTARGET=$SUBTARGET" >> $GITHUB_ENV
         echo "SUBTARGET=$SUBTARGET" >> $GITHUB_OUTPUT
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
+        echo "FIRMWARE=$FIRMWARE" >> $GITHUB_ENV
+        echo "FIRMWARE=$FIRMWARE" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
 
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
       run: |
-        cd build/configs/opkg
-        sed -i "s/subtarget/$SUBTARGET/g" distfeeds*.conf
-        sed -i "s/target\//$TARGET\//g" distfeeds*.conf
-        sed -i "s/platform/$PLATFORM/g" distfeeds*.conf
         cd $OPENWRTROOT
-        mkdir -p files/etc/uci-defaults/
-        cp ../build/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
-        mkdir -p files/etc/opkg
-        cp ../build/configs/opkg/distfeeds-packages-server.conf files/etc/opkg/distfeeds.conf.server
-        mkdir -p files/etc/opkg/keys
-        cp ../build/configs/opkg/1035ac73cc4e59e3 files/etc/opkg/keys/1035ac73cc4e59e3
-        if "$KMODS_IN_FIRMWARE" = 'true'
-        then
-            mkdir -p files/www/snapshots
-            cp -r bin/targets files/www/snapshots
-            cp ../build/configs/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
-        else
-            cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
-        fi
-        cp files/etc/opkg/distfeeds.conf.server files/etc/opkg/distfeeds.conf.mirror
-        sed -i "s/http:\/\/192.168.123.100:2345\/snapshots/https:\/\/openwrt.cc\/snapshots\/$(date +"%Y-%m-%d")\/lean/g" files/etc/opkg/distfeeds.conf.mirror
-        make package/install -j$(nproc) || make package/install -j1 V=s
-        make target/install -j$(nproc) || make target/install -j1 V=s
-        pushd bin/targets/rockchip/armv8
-        rm -rf openwrt-rockchip-armv8.manifest
-        rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
-        rm -rf config.buildinfo
-        rm -rf packages-server.zip
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-${{ matrix.version }}-ext4-sysupgrade.img.gz docker-${{ matrix.version }}-ext4-sysupgrade.img.gz
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-${{ matrix.version }}-squashfs-sysupgrade.img.gz docker-${{ matrix.version }}-squashfs-sysupgrade.img.gz
-        popd
-        make checksum
-        mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/docker-${{ matrix.version }}-sha256sums
+        ../build/scripts/07_generate_firmware.sh
         echo "GENERATE_STATUS=success"  >> $GITHUB_OUTPUT
         
     - name: Generate release tag
@@ -341,10 +275,6 @@ jobs:
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
   UploadFirmware:
-    strategy:
-      max-parallel: 1
-      matrix:
-        version: [r5c, r4se, x86]
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
     needs: [CompileFirmware]
@@ -359,8 +289,6 @@ jobs:
         if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
           docker rmi $(docker images -q) -f
         fi
-        rm openwrt-${{ matrix.version }}.tar.zst
-
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       if: needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'

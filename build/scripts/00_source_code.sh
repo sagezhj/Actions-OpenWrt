@@ -1,16 +1,21 @@
 #!/bin/bash
-
-if [ -n "$MODE" ] && [ "$MODE" == "r4se" ]; then 
+IMAGE="ghcr.io/gngpp/openwrt-build-cache:"
+if [ -n "$MODEL" ] && [ "$MODEL" == "r4se" ]; then 
+    IMAGE=$IMAGE:$MODEL_$VERSION
     git clone https://github.com/DHDAXCW/lede-rockchip openwrt;
 fi
 
-if [ -n "$MODE" ] && [ "$MODE" == "r5c" ]; then 
+if [ -n "$MODEL" ] && [ "$MODEL" == "r5c" ]; then 
+    IMAGE=$IMAGE:$MODEL_$VERSION
     git clone https://github.com/DHDAXCW/lede-rockchip openwrt;
 fi
 
-if [ -n "$MODE" ] && [ "$MODE" == "x86" ]; then 
+if [ -n "$MODEL" ] && [ "$MODEL" == "x86" ]; then 
+    IMAGE=$IMAGE:$MODEL_$VERSION
     git clone https://github.com/coolsnowwolf/lede openwrt;
 fi
+
+export IMAGE
 
 cd openwrt
 rm -rf .git
