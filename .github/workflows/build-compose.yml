@@ -86,7 +86,7 @@ jobs:
     - name: Clone Source Code
       id: clone
       run: |
-        source build/scripts/00_source_code.sh
+        source build/scripts/01_source_code.sh
         IMAGE=ghcr.io/gngpp/openwrt-build-cache:"$MODEL"_"$VERSION"
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
@@ -97,23 +97,23 @@ jobs:
       id: update
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/01_feeds_setting.sh
-        source ../build/scripts/02_feeds_update.sh
+        source ../build/scripts/02_feeds_setting.sh
+        source ../build/scripts/03_feeds_update.sh
   
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/03_community_package.sh arm64
+        source ../build/scripts/04_community_package.sh arm64
         
     - name: Target Settings
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/04_target_setting.sh
+        source ../build/scripts/05_target_setting.sh
 
     - name: Download DL
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/05_download_dl.sh
+        source ../build/scripts/06_download_dl.sh
         
     - name: Comporession
       run: |
@@ -187,7 +187,6 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        rm -rf ./tmp && rm -rf ./build_dir
 
     - name: Chmod scripts
       run: |
@@ -196,7 +195,7 @@ jobs:
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/02_feeds_update.sh
+        source ../build/scripts/03_feeds_update.sh
 
     - name: Show config
       run: |
@@ -213,10 +212,10 @@ jobs:
       id: compile
       run: | 
         cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
-        OPENWRTROOT=$(pwd)
+        source ../build/scripts/07_compile_toolchain.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        source ../build/scripts/05_compile_toolchain.sh
+        
   
   CompileFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
@@ -240,7 +239,7 @@ jobs:
       id: compile
       run: |
         cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
-        source ../build/scripts/06_compile_package.sh
+        source ../build/scripts/08_compile_package.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
@@ -258,7 +257,7 @@ jobs:
       id: generate
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/07_generate_firmware.sh
+        source ../build/scripts/09_generate_firmware.sh
         echo "GENERATE_STATUS=success"  >> $GITHUB_OUTPUT
         
     - name: Generate release tag
