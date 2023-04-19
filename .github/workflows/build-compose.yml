@@ -105,15 +105,10 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/03_community_package.sh arm64
         
-    - name: Ssystem Settings
+    - name: Target Settings
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/04_system_setting.sh
-     
-    - name: Defconfig
-      run: |
-        cd $OPENWRTROOT
-        source ../build/scripts/config-$MODEL.sh
+        source ../build/scripts/04_target_setting.sh
 
     - name: Download DL
       run: |

@@ -91,7 +91,7 @@ jobs:
     - name: Ssystem Settings
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/04_system_setting.sh
+        source ../build/scripts/04_target_setting.sh
      
     - name: Defconfig
       run: |
