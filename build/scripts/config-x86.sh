@@ -12,4 +12,3 @@ sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
 # build config
 cp ../build/configs/lean/x86.config .config
-make defconfig

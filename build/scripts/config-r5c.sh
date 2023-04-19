@@ -33,4 +33,3 @@ cp -r ../build/patch/rockchip/patches-6.1/ ./target/linux/rockchip/patches-6.1/
 
 # build config
 cp ../build/configs/lean/r5c.config .config
-make defconfig

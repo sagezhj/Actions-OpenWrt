@@ -32,4 +32,3 @@ sed -i 's/6.1/5.4/g' ./target/linux/rockchip/Makefile
 
 # build config
 cp ../build/configs/lean/r4se.config .config
-make defconfig

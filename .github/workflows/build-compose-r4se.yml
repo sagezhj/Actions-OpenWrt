@@ -107,7 +107,7 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/config-r4se.sh
 
-    - name: Download DLL
+    - name: Download DL
       run: |
         cd $OPENWRTROOT
         source ../build/scripts/05_download_dl.sh
@@ -238,10 +238,9 @@ jobs:
       id: compile
       run: |
         cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
-        OPENWRTROOT=$(pwd)
+        source ../build/scripts/06_compile_package.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        source ../build/scripts/06_compile_package.sh
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
         echo "PLATFORM=$PLATFORM" >> $GITHUB_OUTPUT
         echo "TARGET=$TARGET" >> $GITHUB_ENV
