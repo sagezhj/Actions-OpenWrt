@@ -26,7 +26,7 @@ on:
         type: boolean
 
 env:
-  REPO_BRANCzH: stable
+  REPO_BRANCH: stable
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -41,16 +41,8 @@ jobs:
   DownloadSourceCode:
     runs-on: ubuntu-20.04
     outputs:
-      OPENWRTROOT: ${{ steps.update.outputs.OPENWRTROOT }}
+      OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
     steps:
-
-    - name: Show choice
-      run: |
-        echo "Repository choice=${{ inputs.repository }}"
-        echo "Download choice=${{ inputs.download }}"
-        echo "Compile choice=${{ inputs.compile }}"
-        echo "Compose choice=${{ inputs.compose }}"
-        echo "Compile machine=${{ inputs.machine }}"
 
     - name: Set Timezone
       run: |
@@ -87,49 +79,38 @@ jobs:
         password: ${{ secrets.TOKEN }}
         
     - name: Clone Source Code
+      id: clone
       run: |
-        df -hT $PWD
-        echo "using repository: $USE_REPO"
-        git clone $USE_REPO openwrt
-
-    - name: Reset Version
-      id: reset
-      run: |
-        cd openwrt
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        rm -rf .git
+        source ../build/scripts/00_source_code.sh
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
 
     - name: Feeds Settings
       id: update
       run: |
         cd $OPENWRTROOT
-        ../build/scripts/01_feeds_setting.sh
-        ../build/scripts/02_feeds_update.sh
+        source ../build/scripts/01_feeds_setting.sh
+        source ../build/scripts/02_feeds_update.sh
   
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        ../build/scripts/03_community_package.sh arm64
+        source ../build/scripts/03_community_package.sh arm64
         
     - name: Ssystem Settings
       run: |
         cd $OPENWRTROOT
-        ../build/scripts/04_system_setting.sh
+        source ../build/scripts/04_system_setting.sh
      
     - name: Defconfig
       run: |
         cd $OPENWRTROOT
-        ../build/scripts/config-r4se.sh
-        make defconfig
+        source ../build/scripts/config-r4se.sh
 
     - name: Download DLL
       run: |
         cd $OPENWRTROOT
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        ls -lah dl
+        source ../build/scripts/05_download_dl.sh
         
     - name: Comporession
       run: |
@@ -213,8 +194,7 @@ jobs:
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        ../build/scripts/02_feeds_update.sh
-        make defconfig
+        source ../build/scripts/02_feeds_update.sh
 
     - name: Show config
       run: |
