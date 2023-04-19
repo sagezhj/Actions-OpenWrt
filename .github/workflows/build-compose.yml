@@ -87,6 +87,7 @@ jobs:
       id: clone
       run: |
         source build/scripts/00_source_code.sh
+        IMAGE=ghcr.io/gngpp/openwrt-build-cache:"$MODEL"_"$VERSION"
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
