@@ -150,7 +150,6 @@ jobs:
         source ../build/scripts/06_download_dl.sh
 
     - name: Compile toolchain
-      id: compile
       run: | 
         cd $OPENWRTROOT
         source ../build/scripts/07_compile_toolchain.sh
