@@ -34,7 +34,7 @@ env:
   
 jobs:
 
-  Toolchain:
+  Build:
     runs-on: ubuntu-20.04
     outputs:
       OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
@@ -47,12 +47,6 @@ jobs:
       RELEASE_TAG: ${{ steps.tag.outputs.RELEASE_TAG }}
       RELEASE_SUCCESS: ${{ steps.tag.outputs.RELEASE_SUCCESS }}
 
-      VERSION_INFO: ${{ steps.clone.outputs.VERSION_INFO }}
-      CURRENT_BRANCH: ${{ steps.env.outputs.CURRENT_BRANCH }}
-      SOURCE_REPO: ${{ steps.env.outputs.SOURCE_REPO }}
-      DEVICE_TARGET: ${{ steps.env.outputs.DEVICE_TARGET }}
-      DEVICE_SUBTARGET: ${{ steps.env.outputs.DEVICE_SUBTARGET }}
-      TOOLCHAIN_IMAGE: ${{ steps.env.outputs.TOOLCHAIN_IMAGE }}
     steps:
 
     - name: Initialization Environment
@@ -117,203 +111,16 @@ jobs:
     - name: Chmod scripts
       run: |
         chmod +x build/scripts/*.sh
-   
-    - name: Clone Source Code
-      id: clone
-      run: |
-
-
+        
     - name: Clone Source Code
       id: clone
       run: |
         source build/scripts/01_source_code.sh
+        IMAGE=ghcr.io/gngpp/openwrt-build-cache:"$MODEL"_"$VERSION"
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-
-        cd $OPENWRTROOT
-        export VERSION_INFO=$(git show -s --date=short --format="Author: %an<br/>date: %cd<br/>commit: %s<br/>commit hash: %H")
-        echo "VERSION_INFO=$VERSION_INFO" >> $GITHUB_ENV
-        echo "VERSION_INFO=$(echo $VERSION_INFO)" >> $GITHUB_OUTPUT
-
-    - name: Target Settings
-      run: |
-        cd $OPENWRTROOT
-        source ../build/scripts/05_target_setting.sh
-
-    - name: Generate Toolchain Config
-      run: |
-        echo "CONFIG_ALL=y" >> $OPENWRTROOT/.config
-        echo "CONFIG_ALL_NONSHARED=y" >> $OPENWRTROOT/.config
-        cd $OPENWRTROOT
-        make defconfig
-
-    - name: Generate Variables
-      id: env
-      run: |
-        export CURRENT_BRANCH="$(git symbolic-ref --short HEAD)"
-        echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
-        echo "CURRENT_BRANCH=$(echo $CURRENT_BRANCH)" >> $GITHUB_OUTPUT
-        cd $OPENWRTROOT
-        export SOURCE_REPO="$(echo $SOURCE_URL | awk -F '/' '{print $(NF)}')"
-        echo "SOURCE_REPO=$SOURCE_REPO" >> $GITHUB_ENV
-        echo "SOURCE_REPO=$(echo $SOURCE_REPO)" >> $GITHUB_OUTPUT
-        export DEVICE_TARGET=$(cat .config | grep CONFIG_TARGET_BOARD | awk -F '"' '{print $2}')
-        echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
-        echo "DEVICE_TARGET=$(echo $DEVICE_TARGET)" >> $GITHUB_OUTPUT
-        export DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
-        echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
-        echo "DEVICE_SUBTARGET=$(echo $DEVICE_SUBTARGET)" >> $GITHUB_OUTPUT
-        export TOOLCHAIN_IMAGE="toolchain-$SOURCE_REPO-$SOURCE_BRANCH-$DEVICE_TARGET-$DEVICE_SUBTARGET"
-        echo "TOOLCHAIN_IMAGE=$TOOLCHAIN_IMAGE" >> $GITHUB_ENV
-        echo "TOOLCHAIN_IMAGE=$(echo $TOOLCHAIN_IMAGE)" >> $GITHUB_OUTPUT
-
-    - name: Compare Toolchain Hash
-      id: hash
-      run: |
-        cd $OPENWRTROOT
-        export CURRENT_HASH=$(git log --pretty=tformat:"%H" -n1 tools toolchain)
-        echo "CURRENT_HASH=$CURRENT_HASH" >> $GITHUB_ENV
-        echo "CURRENT_HASH is $CURRENT_HASH"
-        export CACHE_HASH=$(curl -fSsL https://github.com/$TOOLCHAIN_RELEASE_REPO/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.hash)
-        echo "CACHE_HASH is $CACHE_HASH"
-        if [ -z "$CACHE_HASH" ] || [ "$CURRENT_HASH" != "$CACHE_HASH" ]; then
-          echo "REBUILD_TOOLCHAIN=true" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Show config
-      run: |
-        cd $OPENWRTROOT
-        cat .config
-
-    - name: Compile toolchain
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
-      run: | 
-        cd $OPENWRTROOT
-        source ../build/scripts/07_compile_toolchain.sh
-        rm -rf .config* dl bin
-
-    - name: Generate Toolchain Image
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
-      run: |
-        mksquashfs openwrt $TOOLCHAIN_IMAGE -force-gid 1001 -force-uid 1001 -comp zstd
-        mkdir -p output
-        split -d -b 1900M $TOOLCHAIN_IMAGE output/$TOOLCHAIN_IMAGE.img.
-        rm $TOOLCHAIN_IMAGE
-        echo $CURRENT_HASH > output/$TOOLCHAIN_IMAGE.hash
-        ls -lh output
-        cd output
-        echo "TOOLCHAIN_IMAGE_OUTPUT=$(pwd)" >> $GITHUB_ENV
-  
-    - name: Delete Old Toolchain Assets
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
-      uses: mknejp/delete-release-assets@v1
-      with:
-        repository: ${{ env.TOOLCHAIN_RELEASE_REPO }}
-        token: ${{ secrets.TOKEN }}
-        tag: ${{ env.TOOLCHAIN_TAG }}
-        assets: '${{ env.TOOLCHAIN_IMAGE }}.*'
-        fail-if-no-assets: false
-        fail-if-no-release: false
-
-    - name: Upload Toolchain Image
-      uses: softprops/action-gh-release@v1
-      if: steps.hash.outputs.REBUILD_TOOLCHAIN == 'true'
-      env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-      with:
-          repository: ${{ env.TOOLCHAIN_RELEASE_REPO }}
-          name: Toolchain-Image
-          tag_name: ${{ env.TOOLCHAIN_TAG }}
-          body: OpenWrt 工具链镜像文件
-          files: ${{ env.TOOLCHAIN_IMAGE_OUTPUT }}/*
-
-  Build:
-    needs: [Toolchain]
-    runs-on: ubuntu-20.04
-    env:
-      OPENWRTROOT: ${{ needs.Toolchain.outputs.OPENWRTROOT }}
-      VERSION_INFO: ${{ needs.Toolchain.outputs.VERSION_INFO }}
-      CURRENT_BRANCH: ${{ needs.Toolchain.outputs.CURRENT_BRANCH }}
-      SOURCE_REPO: ${{ needs.Toolchain.outputs.SOURCE_REPO }}
-      DEVICE_TARGET: ${{ needs.Toolchain.outputs.DEVICE_TARGET }}
-      DEVICE_SUBTARGET: ${{ needs.Toolchain.outputs.DEVICE_SUBTARGET }}
-      TOOLCHAIN_IMAGE: ${{ needs.Toolchain.outputs.TOOLCHAIN_IMAGE }}
-
-    outputs:
-      PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
-      TARGET: ${{ steps.compile.outputs.TARGET }}
-      SUBTARGET: ${{ steps.compile.outputs.SUBTARGET }}
-      FIRMWARE: ${{ steps.compile.outputs.FIRMWARE }}
-      GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
-      RELEASE_NAME: ${{ steps.tag.outputs.RELEASE_NAME }}
-      RELEASE_TAG: ${{ steps.tag.outputs.RELEASE_TAG }}
-      RELEASE_SUCCESS: ${{ steps.tag.outputs.RELEASE_SUCCESS }}
-
-    steps:
-
-    - name: Check Server Performance
-      run: |
-        echo "警告⚠"
-        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-        echo -e "已知CPU型号（降序）：8370C，8272CL，8171M，E5-2673 \n"
-        echo "--------------------------CPU信息--------------------------"
-        echo "CPU物理数量：$(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-        echo -e "CPU核心信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
-        echo "--------------------------内存信息--------------------------"
-        echo "已安装内存详细信息："
-        echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
-        echo "--------------------------硬盘信息--------------------------"
-        echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
-    - name: Free disk space
-      run: |
-        sudo -E swapoff -a
-        sudo -E rm -f /swapfile
-        sudo -E docker image prune -a -f
-        sudo -E systemctl stop docker
-        sudo -E snap set system refresh.retain=2
-        sudo -E apt-get -y purge dotnet* firefox clang* gcc-10* ghc* google* hhvm llvm* mono* mongo* mysql* openjdk* php* zulu*
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
-        sudo -E rm -rf /etc/mysql /etc/php /usr/lib/jvm /usr/libexec/docker /usr/local /usr/src/* /var/lib/docker /var/lib/gems /var/lib/mysql /var/lib/snapd /etc/skel /opt/{microsoft,az,hostedtoolcache,cni,mssql-tools,pipx} /usr/share/{az*,dotnet,swift,miniconda,gradle*,java,kotlinc,ri,sbt} /root/{.sbt,.local,.npm}
-        sudo sed -i '/NVM_DIR/d;/skel/d' /root/{.bashrc,.profile}
-        rm -rf ~/{.cargo,.dotnet,.rustup}
-        [ -n "$AGENT_TOOLSDIRECTORY" ] && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        df -h
-
-    - name: Init build dependencies
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo -E rm -rf /etc/apt/sources.list.d
-        sudo -E apt-get update -y
-        sudo -E apt-get install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
-        bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
-        git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev vpnc \
-        libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz aria2 lib32gcc-s1 \
-        mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip libpython3-dev qemu-utils \
-        rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev
-        echo "deb http://archive.ubuntu.com/ubuntu/ bionic-security main" | sudo tee -a /etc/apt/sources.list
-        sudo -E apt-get update
-        sudo -E apt-cache policy libssl1.0-dev
-        sudo -E apt-get install -y libssl1.0-dev kmod
-        sudo -E apt-get clean -y
-        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
-        df -h
-
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Prepare Toolchain Image
-      run: |
-        for i in {0..9}
-        do
-          curl -fsL https://github.com/$TOOLCHAIN_RELEASE_REPO/releases/download/$TOOLCHAIN_TAG/$TOOLCHAIN_IMAGE.img.0$i >> $TOOLCHAIN_IMAGE.img || break
-        done
-        mkdir openwrt-ro openwrt workdir overlay
-        sudo mount -o loop $TOOLCHAIN_IMAGE.img openwrt-ro
-        sudo mount -t overlay overlay -o lowerdir=openwrt-ro,upperdir=overlay,workdir=workdir openwrt
-        cd $OPENWRTROOT
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Feeds Settings
       id: update
@@ -321,21 +128,32 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/02_feeds_setting.sh
         source ../build/scripts/03_feeds_update.sh
-  
+
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/04_community_package.sh arm64
-
+        source ../build/scripts/04_community_package.sh
+        
     - name: Target Settings
       run: |
         cd $OPENWRTROOT
         source ../build/scripts/05_target_setting.sh
 
+    - name: Show config
+      run: |
+        cd $OPENWRTROOT
+        cat .config
+
     - name: Download DL
       run: |
         cd $OPENWRTROOT
         source ../build/scripts/06_download_dl.sh
+
+    - name: Compile toolchain
+      id: compile
+      run: | 
+        cd $OPENWRTROOT
+        source ../build/scripts/07_compile_toolchain.sh
 
     - name: Compile package
       id: compile
@@ -367,8 +185,8 @@ jobs:
           tag="$TARGET/$SUBTARGET"
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
-          echo "后台地址：http://openwrt.lan
-                默认密码：password" > release.txt
+          echo "console address: http://openwrt.lan
+                default password: password" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
     - name: Remove Images

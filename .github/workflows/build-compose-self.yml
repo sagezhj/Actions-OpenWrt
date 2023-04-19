@@ -72,16 +72,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       
-    - name: Chmod scripts
-      run: |
-        chmod +x build/scripts/*.sh
-
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.TOKEN }}
+
+    - name: Chmod scripts
+      run: |
+        chmod +x build/scripts/*.sh
         
     - name: Clone Source Code
       id: clone
@@ -103,7 +103,7 @@ jobs:
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/04_community_package.sh arm64
+        source ../build/scripts/04_community_package.sh
         
     - name: Target Settings
       run: |
@@ -264,6 +264,8 @@ jobs:
           tag="$TARGET/$SUBTARGET"
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
+          echo "console address: http://openwrt.lan
+                default password: password" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
   UploadFirmware:
@@ -281,6 +283,7 @@ jobs:
         if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
           docker rmi $(docker images -q) -f
         fi
+
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       if: needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
@@ -290,6 +293,7 @@ jobs:
           name: ${{ needs.CompileFirmware.outputs.RELEASE_NAME }}
           tag_name: ${{ needs.CompileFirmware.outputs.RELEASE_TAG }}
           files: ${{ needs.CompileFirmware.outputs.FIRMWARE }}/*
+          body_path: release.txt
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0
