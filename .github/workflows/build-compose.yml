@@ -153,8 +153,7 @@ jobs:
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
         ../build/scripts/diy-config-${{ matrix.version }}.sh
-        ../build/scripts/preset-clash-core.sh arm64
-        ../build/scripts/preset-terminal-tools.sh
+        ../build/scripts/03_system_settings.sh
         make defconfig
         
     - name: Download DLL

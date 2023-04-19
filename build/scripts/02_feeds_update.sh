@@ -1,5 +1,8 @@
 #!/bin/bash
 
+OPENWRTROOT=$(pwd)
+export OPENWRTROOT
+
 # Set to local feeds
 pushd customfeeds/packages
 export packages_feed="$(pwd)"

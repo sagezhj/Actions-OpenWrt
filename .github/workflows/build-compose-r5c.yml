@@ -29,7 +29,7 @@ on:
 env:
   REPO_BRANCH: stable
   CONFIG_FILE: build/configs/lean/r5c.config
-  DIY_SH: build/scripts/diy-config-r5c.sh
+  DIY_SH: build/scripts/config-r5c.sh
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -118,8 +118,7 @@ jobs:
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
         ../$DIY_SH
-        ../build/scripts/preset-clash-core.sh arm64
-        ../build/scripts/preset-terminal-tools.sh
+        ../build/scripts/03_system_settings.sh
         make defconfig
         
     - name: Download DL

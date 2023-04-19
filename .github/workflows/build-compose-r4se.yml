@@ -27,8 +27,6 @@ on:
 
 env:
   REPO_BRANCzH: stable
-  CONFIG_FILE: build/configs/lean/r4se.config
-  DIY_SH: build/scripts/diy-config-r4se.sh
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -51,6 +49,7 @@ jobs:
         echo "Compile choice=${{ inputs.compile }}"
         echo "Compose choice=${{ inputs.compose }}"
         echo "Compile machine=${{ inputs.machine }}"
+
     - name: Set Timezone
       run: |
         sudo rm -rf /etc/localtime 
@@ -74,7 +73,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       
-    - name: chmod scripts
+    - name: Chmod scripts
       run: |
         chmod +x ../build/scripts/*.sh
 
@@ -99,36 +98,37 @@ jobs:
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         rm -rf .git
 
-    - name: Clone Custom Feeds
+    - name: Feeds Settings
       id: update
       run: |
-        ../build/scripts/feeds_settings.sh
+        cd $OPENWRTROOT
+        ../build/scripts/01_feeds_setting.sh
+        ../build/scripts/02_feeds_update.sh
   
-    - name: Update And install Feeds
+    - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/feeds_settings.sh
+        ../build/scripts/03_community_package.sh arm64
         
-    - name: Load Custom Configuration
+    - name: Ssystem Settings
       run: |
-        [ -e files ] && mv files $OPENWRTROOT/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRTROOT/.config
         cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../$DIY_SH
-        ../build/scripts/preset-clash-core.sh arm64
-        ../build/scripts/preset-terminal-tools.sh
+        ../build/scripts/04_system_settings.sh
+     
+    - name: Defconfig
+      run: |
+        cd $OPENWRTROOT
+        ../build/scripts/config-r4se.sh
         make defconfig
-        
+
     - name: Download DLL
-      id: package
       run: |
         cd $OPENWRTROOT
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         ls -lah dl
+        
     - name: Comporession
       run: |
         tar --zstd -cf openwrt.tar.zst ./openwrt
@@ -137,7 +137,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./
-        file: ./build/Dockerfile
+        file: ./Dockerfile
         push: true
         tags: ${{ env.IMAGE }}
         
@@ -166,6 +166,7 @@ jobs:
         [ -f /etc/issue.net ] && cat /etc/issue.net
         [ -f /etc/issue ] && cat /etc/issue
         ulimit -a
+
     - name: Checkout
       uses: actions/checkout@v3
       
@@ -185,6 +186,7 @@ jobs:
         docker rm $ID
         docker ps -a
         ls -alh
+
     - name: Decompression
       run: | 
         if [[ -d openwrt ]]; then
@@ -201,17 +203,22 @@ jobs:
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
         rm -rf ./tmp && rm -rf ./build_dir
-    
+
+    - name: Chmod scripts
+      run: |
+        chmod +x ../build/scripts/*.sh
+
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        chmod +x ../build/scripts/*.sh
-        ../build/scripts/feeds_settings.sh
+        ../build/scripts/02_feeds_update.sh
         make defconfig
+
     - name: Show config
       run: |
         cd $OPENWRTROOT
         cat .config
+
   CompileToolchain:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
@@ -222,16 +229,15 @@ jobs:
       id: compile
       run: | 
         cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
-        echo -e "$(nproc) thread compile"
-        make tools/compile -j$(nproc)
-        make toolchain/compile -j$(nproc)
-        make target/compile -j$(nproc)
-        make diffconfig
+        OPENWRTROOT=$(pwd)
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
+        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
+        source ../build/scripts/05_compile_toolchain.sh
   
   CompileFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
-    needs: [CompileInitialize, CompileToolchain]
+    needs: [CompileToolchain]
 
     outputs:
       OPENWRTROOT: ${{ steps.compile.outputs.OPENWRTROOT }}
@@ -249,65 +255,27 @@ jobs:
     - name: Compile package
       id: compile
       run: |
-        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
+        cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
         OPENWRTROOT=$(pwd)
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        echo -e "$(nproc) thread compile"
-        make package/compile -j$(nproc) || make package/compile -j$(nproc)
-        make package/index
-        cd $OPENWRTROOT/bin/packages/*
-        PLATFORM=$(basename `pwd`)
+        source ../build/scripts/06_compile_package.sh
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
         echo "PLATFORM=$PLATFORM" >> $GITHUB_OUTPUT
-        cd $OPENWRTROOT/bin/targets/*
-        TARGET=$(basename `pwd`)
         echo "TARGET=$TARGET" >> $GITHUB_ENV
         echo "TARGET=$TARGET" >> $GITHUB_OUTPUT
-        cd *
-        SUBTARGET=$(basename `pwd`)
         echo "SUBTARGET=$SUBTARGET" >> $GITHUB_ENV
         echo "SUBTARGET=$SUBTARGET" >> $GITHUB_OUTPUT
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT
+        echo "FIRMWARE=$FIRMWARE" >> $GITHUB_ENV
+        echo "FIRMWARE=$FIRMWARE" >> $GITHUB_OUTPUT
         echo "COMPILE_STATUS=success" >> $GITHUB_OUTPUT
+
     - name: Generate Firmware
       if: steps.compile.outputs.COMPILE_STATUS == 'success'
       id: generate
       run: |
-        cd build/configs/opkg
-        sed -i "s/subtarget/$SUBTARGET/g" distfeeds*.conf
-        sed -i "s/target\//$TARGET\//g" distfeeds*.conf
-        sed -i "s/platform/$PLATFORM/g" distfeeds*.conf
         cd $OPENWRTROOT
-        mkdir -p files/etc/uci-defaults/
-        cp ../build/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
-        mkdir -p files/etc/opkg
-        cp ../build/configs/opkg/distfeeds-packages-server.conf files/etc/opkg/distfeeds.conf.server
-        mkdir -p files/etc/opkg/keys
-        cp ../build/configs/opkg/1035ac73cc4e59e3 files/etc/opkg/keys/1035ac73cc4e59e3
-        if "$KMODS_IN_FIRMWARE" = 'true'
-        then
-            mkdir -p files/www/snapshots
-            cp -r bin/targets files/www/snapshots
-            cp ../build/configs/opkg/distfeeds-18.06-local.conf files/etc/opkg/distfeeds.conf
-        else
-            cp ../build/configs/opkg/distfeeds-18.06-remote.conf files/etc/opkg/distfeeds.conf
-        fi
-        cp files/etc/opkg/distfeeds.conf.server files/etc/opkg/distfeeds.conf.mirror
-        sed -i "s/http:\/\/192.168.123.100:2345\/snapshots/https:\/\/openwrt.cc\/snapshots\/$(date +"%Y-%m-%d")\/lean/g" files/etc/opkg/distfeeds.conf.mirror
-        make package/install -j$(nproc) || make package/install -j1 V=s
-        make target/install -j$(nproc) || make target/install -j1 V=s
-        pushd bin/targets/rockchip/armv8
-        rm -rf openwrt-rockchip-armv8.manifest
-        rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
-        rm -rf config.buildinfo
-        rm -rf packages-server.zip
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r4se-ext4-sysupgrade.img.gz docker-r4se-ext4-sysupgrade.img.gz
-        mv openwrt-rockchip-armv8-friendlyarm_nanopi-r4se-squashfs-sysupgrade.img.gz docker-r4se-squashfs-sysupgrade.img.gz
-        popd
-        make checksum
-        mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/docker-r4se-sha256sums
+        ../build/scripts/07_generate_firmware.sh
         echo "GENERATE_STATUS=success"  >> $GITHUB_OUTPUT
         
     - name: Generate release tag
@@ -318,6 +286,7 @@ jobs:
           echo "RELEASE_TAG=$tag" >> $GITHUB_OUTPUT
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
+          
   UploadFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440

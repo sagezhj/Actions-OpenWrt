@@ -20,7 +20,7 @@ on:
 
 env:
   CONFIG_FILE: build/configs/lean/x86.config
-  DIY_SH: build/scripts/diy-config-x86.sh
+  DIY_SH: build/scripts/config-x86.sh
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -107,8 +107,8 @@ jobs:
         cd $OPENWRTROOT
         chmod +x ../build/scripts/*.sh
         ../$DIY_SH
-        ../build/scripts/preset-clash-core.sh arm64
-        ../build/scripts/preset-terminal-tools.sh
+        ../build/scripts/preset-clash-core.sh amd64
+        ../build/scripts/03_system_settings.sh
         make defconfig
         
     - name: Download DLL
