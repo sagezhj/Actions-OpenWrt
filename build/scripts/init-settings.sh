@@ -4,7 +4,7 @@
 uci set luci.main.mediaurlbase='/luci-static/design'
 
 # Disable opkg signature check
-# sed -i 's/option check_signature/# option check_signature/g' /etc/opkg.conf
+sed -i 's/option check_signature/# option check_signature/g' /etc/opkg.conf
 
 # 禁用ipv6前缀
 sed -i 's/^[^#].*option ula/#&/' /etc/config/network
