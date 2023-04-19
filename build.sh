@@ -1,5 +1,20 @@
 #!/bin/bash
 
+{MODEL:=r4se}
+{KMODS_IN_FIRMWARE:=false}
+{VERSION:=docker}
+
+export MODEL
+export VERSION
+export KMODS_IN_FIRMWARE
+
+arr=("r4s" "r4se" "r5c" "x86")
+if echo ${arr[@]} | grep -q "$MODEL"; then
+    echo "Start compiling for the device: $MODEL"
+else
+    exit 0
+fi
+
 chmod +x build/scripts/*.sh
 
 echo "[---------------------------------------------01_sources_code---------------------------------------------]"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ -n "$MODEL" ] && [ "$MODEL" == "r4se" ]; then 
+
 OPENWRTROOT=$(pwd)
 export OPENWRTROOT
 
