@@ -213,9 +213,6 @@ jobs:
       run: | 
         cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
         source ../build/scripts/07_compile_toolchain.sh
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        
   
   CompileFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
