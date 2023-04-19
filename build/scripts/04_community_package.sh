@@ -24,9 +24,6 @@ svn export https://github.com/xiaorouji/openwrt-passwall/branches/luci/luci-app-
 # Add luci-app-ssr-plus
 git clone --depth=1 https://github.com/fw876/helloworld
 
-# Add luci-app-unblockneteasemusic
-git clone --branch master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
-
 # Add luci-app-vssr <M>
 git clone --depth=1 https://github.com/jerrykuku/lua-maxminddb.git
 git clone --depth=1 https://github.com/jerrykuku/luci-app-vssr 
