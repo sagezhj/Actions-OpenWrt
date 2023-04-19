@@ -13,8 +13,8 @@ sed -i 's,1512,1608,g' feeds/luci/applications/luci-app-cpufreq/root/etc/uci-def
 
 # Add luci-app-xunlei
 git clone https://github.com/gngpp/luci-app-xunlei package/xunlei
-mkdir -p files/lib/locale
-curl -Lso files/lib/locale/locale-archive https://github.com/sbwml/r4s_build_script/releases/download/locale/locale-archive
+# mkdir -p files/lib/locale
+# curl -Lso files/lib/locale/locale-archive https://github.com/sbwml/r4s_build_script/releases/download/locale/locale-archive
 
 # Add wg-quick
 git clone https://github.com/gngpp/wg-quick package/network/utils/wg-quick
