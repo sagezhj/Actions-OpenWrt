@@ -4,14 +4,6 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      machine:
-        description: 'Compile machine'
-        required: true
-        default: "10900T"
-        type: choice
-        options:
-        - "10900T"
-        - "10850K"
       model:
         description: Compile model firmware
         required: true
@@ -42,19 +34,20 @@ env:
   
 jobs:
 
-  DownloadSourceCode:
+  Build:
     runs-on: ubuntu-20.04
     outputs:
       OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
-      IMAGE: ${{ steps.clone.outputs.IMAGE }}
+      PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
+      TARGET: ${{ steps.compile.outputs.TARGET }}
+      SUBTARGET: ${{ steps.compile.outputs.SUBTARGET }}
+      FIRMWARE: ${{ steps.compile.outputs.FIRMWARE }}
+      GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
+      RELEASE_NAME: ${{ steps.tag.outputs.RELEASE_NAME }}
+      RELEASE_TAG: ${{ steps.tag.outputs.RELEASE_TAG }}
+      RELEASE_SUCCESS: ${{ steps.tag.outputs.RELEASE_SUCCESS }}
     steps:
 
-    - name: Set Timezone
-      run: |
-        sudo rm -rf /etc/localtime 
-        sudo ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-        date
-        
     - name: Initialization Environment
       run: |
         echo "警告⚠"
@@ -68,6 +61,12 @@ jobs:
         echo -e "$(sudo lshw -short -C memory | grep GiB) \n"
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Set Timezone
+      run: |
+        sudo rm -rf /etc/localtime 
+        sudo ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+        date
     
     - name: Checkout
       uses: actions/checkout@v3
@@ -75,23 +74,13 @@ jobs:
     - name: Chmod scripts
       run: |
         chmod +x build/scripts/*.sh
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.TOKEN }}
-        
+   
     - name: Clone Source Code
       id: clone
       run: |
         source build/scripts/01_source_code.sh
-        IMAGE=ghcr.io/gngpp/openwrt-build-cache:"$MODEL"_"$VERSION"
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-        echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Feeds Settings
       id: update
@@ -114,134 +103,23 @@ jobs:
       run: |
         cd $OPENWRTROOT
         source ../build/scripts/06_download_dl.sh
-        
-    - name: Comporession
-      run: |
-        tar --zstd -cf openwrt.tar.zst ./openwrt
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v2
-      with:
-        context: ./
-        file: ./Dockerfile
-        push: true
-        tags: ${{ env.IMAGE }}
-        
-    - name: Image digest
-      run: echo ${{ steps.docker_build.outputs.digest }}
-
-  CompileInitialize:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
-    timeout-minutes: 1440
-    needs: [DownloadSourceCode]
-
-    outputs:
-      OPENWRTROOT: ${{ steps.clean.outputs.OPENWRTROOT }}
-    steps:
-  
-    - name: Initialization Environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        echo -e "Total CPU cores\t: $(nproc)"
-        cat /proc/cpuinfo | grep 'model name'
-        free -h
-        uname -a
-        [ -f /proc/version ] && cat /proc/version
-        [ -f /etc/issue.net ] && cat /etc/issue.net
-        [ -f /etc/issue ] && cat /etc/issue
-        ulimit -a
-
-    - name: Checkout
-      uses: actions/checkout@v3
-      
-    - name: Pull Image
-      run: |
-        docker pull ${{ needs.DownloadSourceCode.outputs.IMAGE }}
-        docker images
-    
-    - name: Copy Files
-      id: copy
-      run: |
-        if [[ -f openwrt.tar.zst ]]; then
-            rm openwrt.tar.zst
-        fi
-        ID="$(docker create --name openwrt "${{ needs.DownloadSourceCode.outputs.IMAGE }}")"
-        docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
-        docker rm $ID
-        docker ps -a
-        ls -alh
-
-    - name: Decompression
-      run: | 
-        if [[ -d openwrt ]]; then
-            rm -rf ./openwrt
-        fi
-        tar -xf openwrt.tar.zst
-        ls -alh ./openwrt
-        rm openwrt.tar.zst
-      
-    - name: Clean
-      id: clean
-      run: |
-        cd openwrt
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-
-    - name: Chmod scripts
-      run: |
-        chmod +x build/scripts/*.sh
-
-    - name: Feeds Settings
-      run: | 
-        cd $OPENWRTROOT
-        source ../build/scripts/03_feeds_update.sh
 
     - name: Show config
       run: |
         cd $OPENWRTROOT
         cat .config
 
-  CompileToolchain:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
-    timeout-minutes: 1440
-    needs: [CompileInitialize]
-
-    steps:
     - name: Compile toolchain
       id: compile
       run: | 
-        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
+        cd $OPENWRTROOT
         source ../build/scripts/07_compile_toolchain.sh
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        
-  
-  CompileFirmware:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
-    timeout-minutes: 1440
-    needs: [CompileToolchain]
-
-    outputs:
-      OPENWRTROOT: ${{ steps.compile.outputs.OPENWRTROOT }}
-      PLATFORM: ${{ steps.compile.outputs.PLATFORM }}
-      TARGET: ${{ steps.compile.outputs.TARGET }}
-      SUBTARGET: ${{ steps.compile.outputs.SUBTARGET }}
-      FIRMWARE: ${{ steps.compile.outputs.FIRMWARE }}
-      GENERATE_STATUS: ${{ steps.generate.outputs.GENERATE_STATUS }}
-      RELEASE_NAME: ${{ steps.tag.outputs.RELEASE_NAME }}
-      RELEASE_TAG: ${{ steps.tag.outputs.RELEASE_TAG }}
-      RELEASE_SUCCESS: ${{ steps.tag.outputs.RELEASE_SUCCESS }}
-
-    steps:
 
     - name: Compile package
       id: compile
       run: |
-        cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
+        cd $OPENWRTROOT
         source ../build/scripts/08_compile_package.sh
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
-        echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
         echo "PLATFORM=$PLATFORM" >> $GITHUB_OUTPUT
         echo "TARGET=$TARGET" >> $GITHUB_ENV
@@ -269,30 +147,24 @@ jobs:
           echo "RELEASE_NAME=$(date +"%Y.%m.%d") for $tag" >> $GITHUB_OUTPUT
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
 
-  UploadFirmware:
-    runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
-    timeout-minutes: 1440
-    needs: [CompileFirmware]
-
-    steps:
-  
     - name: Remove Images
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled() && needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success'
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled() && steps.tag.outputs.RELEASE_SUCCESS == 'success'
       run: | 
         MAX_DISK_USAGE="10G"
         CURRENT=$(docker system df --format '{{.Size}}' | head -n1 | sed 's/B$//')
         if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
           docker rmi $(docker images -q) -f
         fi
+
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
-      if: needs.CompileFirmware.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
+      if: steps.tag.outputs.RELEASE_SUCCESS == 'success' && !cancelled() && env.UPLOAD_RELEASE == 'true'
       env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-          name: ${{ needs.CompileFirmware.outputs.RELEASE_NAME }}
-          tag_name: ${{ needs.CompileFirmware.outputs.RELEASE_TAG }}
-          files: ${{ needs.CompileFirmware.outputs.FIRMWARE }}/*
+          name: ${{ steps.tag.outputs.RELEASE_NAME }}
+          tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
+          files: ${{ steps.tag.outputs.FIRMWARE }}/*
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.1.0

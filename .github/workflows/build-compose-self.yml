@@ -1,4 +1,4 @@
-name: build-compose-r4se
+name: build-compose-self
 
 on:
   repository_dispatch:
@@ -12,6 +12,21 @@ on:
         options:
         - "10900T"
         - "10850K"
+      model:
+        description: Compile model firmware
+        required: true
+        type: choice
+        options:
+          - "r4se"
+          - "r5c"
+          - "x86"
+      version:
+        description: Compile model version firmware
+        required: true
+        default: docker
+        type: choice
+        options:
+          - "docker"
       kmod:
         description: kmod in firmware
         required: true
@@ -19,13 +34,11 @@ on:
         type: boolean
 
 env:
+  MODEL: ${{ inputs.model }}
+  VERSION: ${{ inputs.version }}
   KMODS_IN_FIRMWARE: ${{ inputs.kmod }}
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  IMAGE: ghcr.io/gngpp/openwrt-build-cache:r4se
-  COMMIT_ID: ${{ vars.COMMIT_ID }}
-  VERSION: docker
-  MODEL: r4se
   
 jobs:
 
@@ -33,6 +46,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       OPENWRTROOT: ${{ steps.clone.outputs.OPENWRTROOT }}
+      IMAGE: ${{ steps.clone.outputs.IMAGE }}
     steps:
 
     - name: Set Timezone
@@ -72,36 +86,34 @@ jobs:
     - name: Clone Source Code
       id: clone
       run: |
-        source ../build/scripts/00_source_code.sh
+        source build/scripts/01_source_code.sh
+        IMAGE=ghcr.io/gngpp/openwrt-build-cache:"$MODEL"_"$VERSION"
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+        echo "IMAGE=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Feeds Settings
       id: update
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/01_feeds_setting.sh
-        source ../build/scripts/02_feeds_update.sh
+        source ../build/scripts/02_feeds_setting.sh
+        source ../build/scripts/03_feeds_update.sh
   
     - name: Community Packages
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/03_community_package.sh arm64
+        source ../build/scripts/04_community_package.sh arm64
         
-    - name: Ssystem Settings
+    - name: Target Settings
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/04_target_setting.sh
-     
-    - name: Defconfig
-      run: |
-        cd $OPENWRTROOT
-        source ../build/scripts/config-r4se.sh
+        source ../build/scripts/05_target_setting.sh
 
     - name: Download DL
       run: |
         cd $OPENWRTROOT
-        source ../build/scripts/05_download_dl.sh
+        source ../build/scripts/06_download_dl.sh
         
     - name: Comporession
       run: |
@@ -125,7 +137,6 @@ jobs:
 
     outputs:
       OPENWRTROOT: ${{ steps.clean.outputs.OPENWRTROOT }}
-
     steps:
   
     - name: Initialization Environment
@@ -146,7 +157,7 @@ jobs:
       
     - name: Pull Image
       run: |
-        docker pull $IMAGE
+        docker pull ${{ needs.DownloadSourceCode.outputs.IMAGE }}
         docker images
     
     - name: Copy Files
@@ -155,7 +166,7 @@ jobs:
         if [[ -f openwrt.tar.zst ]]; then
             rm openwrt.tar.zst
         fi
-        ID="$(docker create --name openwrt "$IMAGE")"
+        ID="$(docker create --name openwrt "${{ needs.DownloadSourceCode.outputs.IMAGE }}")"
         docker cp $ID:/openwrt/openwrt.tar.zst ./openwrt.tar.zst
         docker rm $ID
         docker ps -a
@@ -176,7 +187,6 @@ jobs:
         cd openwrt
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
-        rm -rf ./tmp && rm -rf ./build_dir
 
     - name: Chmod scripts
       run: |
@@ -185,7 +195,7 @@ jobs:
     - name: Feeds Settings
       run: | 
         cd $OPENWRTROOT
-        source ../build/scripts/02_feeds_update.sh
+        source ../build/scripts/03_feeds_update.sh
 
     - name: Show config
       run: |
@@ -202,15 +212,15 @@ jobs:
       id: compile
       run: | 
         cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
-        OPENWRTROOT=$(pwd)
+        source ../build/scripts/07_compile_toolchain.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
-        source ../build/scripts/05_compile_toolchain.sh
+        
   
   CompileFirmware:
     runs-on: [self-hosted, Linux, X64, "${{ inputs.machine }}"]
     timeout-minutes: 1440
-    needs: [CompileToolchain]
+    needs: [CompileInitialize, CompileToolchain]
 
     outputs:
       OPENWRTROOT: ${{ steps.compile.outputs.OPENWRTROOT }}
@@ -228,8 +238,8 @@ jobs:
     - name: Compile package
       id: compile
       run: |
-        cd ${{ needs.CompileToolchain.outputs.OPENWRTROOT }}
-        source ../build/scripts/06_compile_package.sh
+        cd ${{ needs.CompileInitialize.outputs.OPENWRTROOT }}
+        source ../build/scripts/08_compile_package.sh
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_ENV
         echo "OPENWRTROOT=$OPENWRTROOT" >> $GITHUB_OUTPUT
         echo "PLATFORM=$PLATFORM" >> $GITHUB_ENV
@@ -247,7 +257,7 @@ jobs:
       id: generate
       run: |
         cd $OPENWRTROOT
-        ../build/scripts/07_generate_firmware.sh
+        source ../build/scripts/09_generate_firmware.sh
         echo "GENERATE_STATUS=success"  >> $GITHUB_OUTPUT
         
     - name: Generate release tag
