@@ -34,16 +34,20 @@ make target/install -j$(nproc) || make target/install -j1 V=s
 
 pushd $OPENWRTROOT/bin/targets/$TARGET/$SUBTARGET
 find . -maxdepth 1 -type f -name "*rootfs*" -print0 | xargs -0 rm -f
-ext4_target=$(find . | grep $MODEL | grep 'ext4' | grep 'img.gz')
-squashfs_target=$(find . | grep $MODEL | grep 'squashfs' | grep 'img.gz')
+ext4_target=$(find . | grep $MODEL | grep 'ext4' | grep 'img.gz' | sed 's|^./||')
+squashfs_target=$(find . | grep $MODEL | grep 'squashfs' | grep 'img.gz' | sed 's|^./||')
 echo "ext4_target: $ext4_target"
 echo "squashfs_target: $squashfs_target"
-find . -maxdepth 1 -type f ! -name "$ext4_target" ! -name "$squashfs_target" -print0 | xargs -0 rm -f
+if [ -n "$ext4_target" ] && [ -n "$squashfs_target" ]; then
+    find . -maxdepth 1 -type f ! -name "$ext4_target" ! -name "$squashfs_target" -print0 | xargs -0 rm -f
+fi
 ls -lah
 if [ -n "$ext4_target" ]; then
+    find . -maxdepth 1 -type f ! -name "$ext4_target" -print0 | xargs -0 rm -f
     mv $ext4_target $VERSION-$MODEL-ext4-sysupgrade.img.gz
 fi
 if [ -n "$squashfs_target" ]; then
+    find . -maxdepth 1 -type f ! -name "$squashfs_target" -print0 | xargs -0 rm -f
     mv $squashfs_target $VERSION-$MODEL-squashfs-sysupgrade.img.gz
 fi
 popd
