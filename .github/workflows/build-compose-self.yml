@@ -79,7 +79,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.TOKEN }}
 
-    - name: Chmod scripts
+    - name: Chmod Scripts
       run: |
         chmod +x build/scripts/*.sh
         
@@ -118,6 +118,7 @@ jobs:
     - name: Comporession
       run: |
         tar --zstd -cf openwrt.tar.zst ./openwrt
+
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
@@ -188,7 +189,7 @@ jobs:
         echo "OPENWRTROOT=$PWD" >> $GITHUB_ENV
         echo "OPENWRTROOT=$PWD" >> $GITHUB_OUTPUT
 
-    - name: Chmod scripts
+    - name: Chmod Scripts
       run: |
         chmod +x build/scripts/*.sh
 
@@ -197,7 +198,7 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/03_feeds_update.sh
 
-    - name: Show config
+    - name: Show Config
       run: |
         cd $OPENWRTROOT
         cat .config
