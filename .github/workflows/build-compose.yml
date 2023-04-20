@@ -108,7 +108,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       
-    - name: Chmod scripts
+    - name: Chmod Scripts
       run: |
         chmod +x build/scripts/*.sh
         
@@ -139,7 +139,7 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/05_target_setting.sh
 
-    - name: Show config
+    - name: Show Config
       run: |
         cd $OPENWRTROOT
         cat .config
@@ -149,12 +149,12 @@ jobs:
         cd $OPENWRTROOT
         source ../build/scripts/06_download_dl.sh
 
-    - name: Compile toolchain
+    - name: Compile Toolchain
       run: | 
         cd $OPENWRTROOT
         source ../build/scripts/07_compile_toolchain.sh
 
-    - name: Compile package
+    - name: Compile Packages
       id: compile
       run: |
         cd $OPENWRTROOT
@@ -187,15 +187,6 @@ jobs:
           echo "console address: http://openwrt.lan
                 default password: password" > release.txt
           echo "RELEASE_SUCCESS=success" >> $GITHUB_OUTPUT
-
-    - name: Remove Images
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled() && steps.tag.outputs.RELEASE_SUCCESS == 'success'
-      run: | 
-        MAX_DISK_USAGE="10G"
-        CURRENT=$(docker system df --format '{{.Size}}' | head -n1 | sed 's/B$//')
-        if (( $(numfmt --from=iec $CURRENT) > $(numfmt --from=iec $MAX_DISK_USAGE) )); then
-          docker rmi $(docker images -q) -f
-        fi
 
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1

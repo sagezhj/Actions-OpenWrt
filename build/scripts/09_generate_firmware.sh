@@ -32,13 +32,12 @@ sed -i "s/http:\/\/192.168.123.100:2345\/snapshots/https:\/\/openwrt.cc\/snapsho
 make package/install -j$(nproc) || make package/install -j1 V=s
 make target/install -j$(nproc) || make target/install -j1 V=s
 
-pushd bin/targets/rockchip/armv8
-rm -rf openwrt-rockchip-armv8.manifest
-rm -rf openwrt-rockchip-armv8-rootfs.tar.gz
-rm -rf config.buildinfo
-rm -rf packages-server.zip
-mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODEL-ext4-sysupgrade.img.gz $VERSION-$MODEL-ext4-sysupgrade.img.gz
-mv openwrt-rockchip-armv8-friendlyarm_nanopi-$MODEL-squashfs-sysupgrade.img.gz $VERSION-$MODEL-squashfs-sysupgrade.img.gz
+pushd bin/targets/$TARGET/$SUBTARGET
+ext4_target=$(find . | grep $VERSION | grep $MODEL | grep 'ext4' | grep 'img.gz')
+squashfs_target=$(find . | grep $VERSION | grep $MODEL | grep 'squashfs' | grep 'img.gz')
+find . ! -name "$ext4_target" ! -name "$squashfs_target" -type f -print0 | xargs -0 rm -f
+mv $ext4_target $VERSION-$MODEL-ext4-sysupgrade.img.gz
+mv $squashfs_target $VERSION-$MODEL-squashfs-sysupgrade.img.gz
 popd
 make checksum
-mv bin/targets/rockchip/armv8/sha256sums bin/targets/rockchip/armv8/$VERSION-$MODEL-sha256sums
+mv bin/targets/$TARGET/$SUBTARGET/sha256sums bin/targets/$TARGET/$SUBTARGET/$VERSION-$MODEL-sha256sums
