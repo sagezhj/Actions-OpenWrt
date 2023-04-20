@@ -196,7 +196,7 @@ jobs:
       with:
           name: ${{ steps.tag.outputs.RELEASE_NAME }}
           tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
-          files: ${{ steps.tag.outputs.FIRMWARE }}/*
+          files: ${{ env.FIRMWARE }}/*
           body_path: release.txt
 
     - name: Remove old Releases
