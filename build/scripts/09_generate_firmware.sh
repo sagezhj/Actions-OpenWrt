@@ -33,9 +33,10 @@ make package/install -j$(nproc) || make package/install -j1 V=s
 make target/install -j$(nproc) || make target/install -j1 V=s
 
 pushd bin/targets/$TARGET/$SUBTARGET
-ext4_target=$(find . | grep $VERSION | grep $MODEL | grep 'ext4' | grep 'img.gz')
-squashfs_target=$(find . | grep $VERSION | grep $MODEL | grep 'squashfs' | grep 'img.gz')
-find . ! -name "$ext4_target" ! -name "$squashfs_target" -type f -print0 | xargs -0 rm -f
+find . -maxdepth 1 -type f -name "*rootfs*" -print0 | xargs -0 rm -f
+ext4_target=$(find . | grep $MODEL | grep 'ext4' | grep 'img.gz')
+squashfs_target=$(find . | grep $MODEL | grep 'squashfs' | grep 'img.gz')
+find . -maxdepth 1 -type f ! -name "$ext4_target" ! -name "$squashfs_target" -print0 | xargs -0 rm -f
 mv $ext4_target $VERSION-$MODEL-ext4-sysupgrade.img.gz
 mv $squashfs_target $VERSION-$MODEL-squashfs-sysupgrade.img.gz
 popd
