@@ -8,7 +8,7 @@ if [ -n "$MODEL" ] && [ "$MODEL" == "r5c" ]; then
     git clone https://github.com/DHDAXCW/lede-rockchip openwrt;
 fi
 
-if [ -n "$MODEL" ] && [ "$MODEL" == "x86" ]; then 
+if [ -n "$MODEL" ] && [ "$MODEL" == "x86-64" ]; then 
     git clone https://github.com/coolsnowwolf/lede openwrt;
 fi
 

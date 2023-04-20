@@ -22,7 +22,7 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 
 - R4SE 默认网卡rtl8821cu driver + GPU （对超频电压微调过，特别适合体制垃圾的RK3399，暂时不存在跑大带宽/pcdn重启/死机之类）
 - R5C 默认m.2网卡mt7921 driver + GPU + tty console
-- X86 默认AX201 driver
+- x86-64 默认AX201 driver
 
 ### 编译依赖（请不要fork我的项目，如果你执意要在云编译，请运行build-compose workflows）
 

@@ -11,7 +11,7 @@ on:
         options:
           - "r4se"
           - "r5c"
-          - "x86"
+          - "x86-64"
       version:
         description: Compile model version firmware
         required: true

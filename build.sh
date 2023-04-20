@@ -8,7 +8,7 @@ export MODEL
 export VERSION
 export KMODS_IN_FIRMWARE
 
-arr=("r4s" "r4se" "r5c" "x86")
+arr=("r4s" "r4se" "r5c" "x86-64")
 if echo ${arr[@]} | grep -q "$MODEL"; then
     echo "Start compiling for the device: $MODEL"
 else
