@@ -1,16 +1,4 @@
-<div align="center">
-<a href="/LICENSE">
-    <img src="https://img.shields.io/github/license/gngpp/NanoPi-R5C?style=flat&a=1" alt="">
-  </a>
-</div>
-<br>
-
 # Actions-OpenWrt
-
-### 插件预览
-![image](https://user-images.githubusercontent.com/51810656/232373515-9ee2b8b4-19de-4723-89e8-66b8b51f5d7f.png)
-![image](https://user-images.githubusercontent.com/51810656/232373585-5fc59ffe-1636-499a-9edd-d84e65b6e35e.png)
-
 
 ### 支持在线升级，自动扩容根分区
 
@@ -36,7 +24,7 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - R5C 默认m.2网卡mt7921 driver + GPU + tty console
 - X86 默认AX201 driver
 
-### 编译依赖（请不要fork我的项目，如果你执意要在本地编译）
+### 编译依赖（请不要fork我的项目，如果你执意要在云编译，请运行build-compose workflows）
 
 ```shell
 sudo apt update -y
@@ -54,7 +42,6 @@ sudo gpasswd -a ${USER} docker
 sudo service docker restart
 newgrp - docker
 ```
-
 ### 默认编译配置
 
 - 用户名：root 密码：password  管理后台：http://openwrt.lan
@@ -62,3 +49,7 @@ newgrp - docker
 - 关于r5c刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
 - rkbin下载 https://github.com/gngpp/NanoPi-R5C/raw/main/build/data/rk356x-MiniLoaderAll.bin
 - 电报群：https://t.me/DHDAXCW
+
+### 插件预览
+![image](https://user-images.githubusercontent.com/51810656/232373515-9ee2b8b4-19de-4723-89e8-66b8b51f5d7f.png)
+![image](https://user-images.githubusercontent.com/51810656/232373585-5fc59ffe-1636-499a-9edd-d84e65b6e35e.png)
