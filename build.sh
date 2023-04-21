@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: ${MODEL:=r4se}
+: ${MODEL:=x86-64}
 : ${KMODS_IN_FIRMWARE:=false}
 : ${VERSION:=docker}
 
