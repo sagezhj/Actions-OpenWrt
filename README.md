@@ -42,6 +42,14 @@ sudo gpasswd -a ${USER} docker
 sudo service docker restart
 newgrp - docker
 ```
+
+- 本地编译
+
+```shell
+git clone https://github.com/gngpp/Actions-OpenWrt && cd Actions-OpenWrt
+MODEL=x86-64 bash +x build.sh
+```
+
 ### 默认编译配置
 
 - 用户名：root 密码：password  管理后台：http://openwrt.lan
