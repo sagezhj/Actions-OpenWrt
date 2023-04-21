@@ -18,28 +18,28 @@ fi
 chmod +x build/scripts/*.sh
 
 echo "[---------------------------------------------01_source_code---------------------------------------------]"
-./build/scripts/01_source_code.sh
+source ./build/scripts/01_source_code.sh
 
 echo "[---------------------------------------------02_feeds_setting---------------------------------------------]"
-./build/scripts/02_feeds_setting.sh
+source ./build/scripts/02_feeds_setting.sh
 
 echo "[---------------------------------------------03_feeds_update---------------------------------------------]"
-./build/scripts/03_feeds_update.sh
+source ./build/scripts/03_feeds_update.sh
 
 echo "[---------------------------------------------04_community_package---------------------------------------------]"
-./build/scripts/04_community_package.sh
+source ./build/scripts/04_community_package.sh
 
 echo "[---------------------------------------------05_target_setting---------------------------------------------]"
-./build/scripts/05_target_setting.sh
+source ./build/scripts/05_target_setting.sh
 
 echo "[---------------------------------------------06_download_dl---------------------------------------------]"
-./build/scripts/06_download_dl.sh
+source ./build/scripts/06_download_dl.sh
 
 echo "[---------------------------------------------07_compile_toolchain---------------------------------------------]"
-./build/scripts/07_compile_toolchain.sh
+source ./build/scripts/07_compile_toolchain.sh
 
 echo "[---------------------------------------------08_compile_package---------------------------------------------]"
-./build/scripts/08_compile_package
+source ./build/scripts/08_compile_package
 
 echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
-./build/scripts/09_generate_firmware.sh
+source ./build/scripts/09_generate_firmware.sh
