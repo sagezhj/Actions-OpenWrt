@@ -1,8 +1,8 @@
 #!/bin/bash
 
-{MODEL:=r4se}
-{KMODS_IN_FIRMWARE:=false}
-{VERSION:=docker}
+: ${MODEL:=r4se}
+: ${KMODS_IN_FIRMWARE:=false}
+: ${VERSION:=docker}
 
 export MODEL
 export VERSION
