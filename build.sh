@@ -46,7 +46,12 @@ source ../build/scripts/07_compile_toolchain.sh
 
 echo "[---------------------------------------------08_compile_package---------------------------------------------]"
 cd $OPENWRTROOT
-source ../build/scripts/08_compile_package
+source ../build/scripts/08_compile_package.sh
+
+echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
+cd $OPENWRTROOT
+source ../build/scripts/09_generate_firmware.sh
+
 
 echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
 cd $OPENWRTROOT
