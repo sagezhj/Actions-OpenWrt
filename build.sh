@@ -18,7 +18,7 @@ fi
 chmod +x build/scripts/*.sh
 
 echo "[---------------------------------------------01_sources_code---------------------------------------------]"
-./build/scripts/01_sources_code.sh
+./build/scripts/01_source_code.sh
 
 echo "[---------------------------------------------02_feeds_setting---------------------------------------------]"
 ./build/scripts/02_feeds_setting.sh
