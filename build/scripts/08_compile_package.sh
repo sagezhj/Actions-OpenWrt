@@ -1,4 +1,5 @@
 #!/bin/bash
+
 OPENWRTROOT=$(pwd)
 export OPENWRTROOT
 
