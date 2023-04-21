@@ -51,8 +51,3 @@ source ../build/scripts/08_compile_package.sh
 echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
 cd $OPENWRTROOT
 source ../build/scripts/09_generate_firmware.sh
-
-
-echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
-cd $OPENWRTROOT
-source ../build/scripts/09_generate_firmware.sh
