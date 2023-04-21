@@ -21,25 +21,33 @@ echo "[---------------------------------------------01_source_code--------------
 source ./build/scripts/01_source_code.sh
 
 echo "[---------------------------------------------02_feeds_setting---------------------------------------------]"
-source ./build/scripts/02_feeds_setting.sh
+cd $OPENWRTROOT
+source ../build/scripts/02_feeds_setting.sh
 
 echo "[---------------------------------------------03_feeds_update---------------------------------------------]"
-source ./build/scripts/03_feeds_update.sh
+cd $OPENWRTROOT
+source ../build/scripts/03_feeds_update.sh
 
 echo "[---------------------------------------------04_community_package---------------------------------------------]"
-source ./build/scripts/04_community_package.sh
+cd $OPENWRTROOT
+source ../build/scripts/04_community_package.sh
 
 echo "[---------------------------------------------05_target_setting---------------------------------------------]"
-source ./build/scripts/05_target_setting.sh
+cd $OPENWRTROOT
+source ../build/scripts/05_target_setting.sh
 
 echo "[---------------------------------------------06_download_dl---------------------------------------------]"
-source ./build/scripts/06_download_dl.sh
+cd $OPENWRTROOT
+source ../build/scripts/06_download_dl.sh
 
 echo "[---------------------------------------------07_compile_toolchain---------------------------------------------]"
-source ./build/scripts/07_compile_toolchain.sh
+cd $OPENWRTROOT
+source ../build/scripts/07_compile_toolchain.sh
 
 echo "[---------------------------------------------08_compile_package---------------------------------------------]"
-source ./build/scripts/08_compile_package
+cd $OPENWRTROOT
+source ../build/scripts/08_compile_package
 
 echo "[---------------------------------------------09_generate_firmware---------------------------------------------]"
-source ./build/scripts/09_generate_firmware.sh
+cd $OPENWRTROOT
+source ../build/scripts/09_generate_firmware.sh
