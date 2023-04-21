@@ -1,9 +1,9 @@
 
-mkdir -p files/root
-pushd files/root
-
 OPENWRTROOT=$(pwd)
 export OPENWRTROOT
+
+mkdir -p files/root
+pushd files/root
 
 ## Install oh-my-zsh
 # Clone oh-my-zsh repository
