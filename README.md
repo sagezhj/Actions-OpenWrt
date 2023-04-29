@@ -53,8 +53,6 @@ MODEL=x86-64 bash +x build.sh
 ### 默认编译配置
 
 - 用户名：root 密码：password  管理后台：http://openwrt.lan
-- 下载地址： https://github.com/gngpp/NanoPi-R5C/releases
-- 关于r5c刷机方法请参考dn2刷机 https://github.com/DHDAXCW/DoorNet-1-2/blob/mere/emmc.md
 - rkbin下载 https://github.com/gngpp/NanoPi-R5C/raw/main/build/data/rk356x-MiniLoaderAll.bin
 - 电报群：https://t.me/DHDAXCW
 
