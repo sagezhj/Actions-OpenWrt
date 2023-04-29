@@ -24,7 +24,7 @@ EXPAND=true PROXY=gh.flyinbug.top/gh bash +x ~/update.sh
 - R5C 默认m.2网卡mt7921 driver + GPU + tty console
 - x86-64 默认AX201 driver
 
-### 编译依赖（请不要fork我的项目，如果你执意要在云编译，请运行build-compose workflows）
+### 编译依赖（请不要fork我的项目）
 
 ```shell
 sudo apt update -y
