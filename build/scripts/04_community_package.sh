@@ -56,12 +56,9 @@ git clone --depth=1 https://github.com/esirplayground/luci-app-poweroff
 git clone --depth=1 https://github.com/destan19/OpenAppFilter
 popd
 
-
 # OpenClash GEOIP
 mkdir -p files/etc/openclash
 GEOIP_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
 GEOSITE_URL="https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
 wget -qO- $GEOIP_URL > files/etc/openclash/GeoIP.dat
 wget -qO- $GEOSITE_URL > files/etc/openclash/GeoSite.dat
-
-
