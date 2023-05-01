@@ -27,4 +27,4 @@ pushd files/etc
 cp ../../../build/scripts/sysinfo.sh .
 popd
 
-source ../build/scripts/config-$MODEL.sh
+source ../build/scripts/$MODEL.sh
