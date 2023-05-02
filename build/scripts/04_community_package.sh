@@ -44,7 +44,7 @@ git clone --depth=1 https://github.com/sirpdboy/luci-app-autotimeset
 git clone --depth=1 https://github.com/tindy2013/openwrt-subconverter
 
 # Add luci-app-smartdns & smartdns
-svn export https://github.com/281677160/openwrt-package/trunk/luci-app-smartdns
+svn export https://github.com/gngpp/openwrt-packages/trunk/luci-app-smartdns
 
 # Add luci-app-services-wolplus
 svn export https://github.com/msylgj/OpenWrt_luci-app/trunk/luci-app-services-wolplus
