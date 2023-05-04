@@ -56,7 +56,7 @@ MODEL=x86-64 bash +x build.sh
 - 电报群：https://t.me/DHDAXCW
 
 ### 预览
-![image](https://user-images.githubusercontent.com/51810656/236200004-716cb620-f670-460e-81ba-3b43f2c241bd.png)
+![image](https://user-images.githubusercontent.com/51810656/236200658-027ad74e-7867-4f8b-9d65-87bbed243262.png)
 ![image](https://user-images.githubusercontent.com/51810656/236200205-38795b63-822e-4fd0-9dc2-e28d65bf6f16.png)
 
 
