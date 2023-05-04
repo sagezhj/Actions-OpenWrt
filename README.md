@@ -55,6 +55,8 @@ MODEL=x86-64 bash +x build.sh
 - 用户名：root 密码：password  管理后台：http://openwrt.lan
 - 电报群：https://t.me/DHDAXCW
 
-### 插件预览
-![image](https://user-images.githubusercontent.com/51810656/232373515-9ee2b8b4-19de-4723-89e8-66b8b51f5d7f.png)
-![image](https://user-images.githubusercontent.com/51810656/232373585-5fc59ffe-1636-499a-9edd-d84e65b6e35e.png)
+### 预览
+![image](https://user-images.githubusercontent.com/51810656/236200004-716cb620-f670-460e-81ba-3b43f2c241bd.png)
+![image](https://user-images.githubusercontent.com/51810656/236200205-38795b63-822e-4fd0-9dc2-e28d65bf6f16.png)
+
+
