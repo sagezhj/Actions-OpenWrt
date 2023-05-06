@@ -8,7 +8,7 @@ mkdir package/community
 pushd package/community
 
 # Add luci-app-xunlei
-svn co https://github.com/gngpp/nas-xunlei/trunk/openwrt package/xunlei
+svn co https://github.com/gngpp/nas-xunlei/trunk/openwrt
 
 # Add luci-app-alist
 git clone --depth=1 https://github.com/sbwml/luci-app-alist
