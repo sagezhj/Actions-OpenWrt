@@ -1,7 +1,9 @@
 #!/bin/bash
 
+rm -rf package/kernel/rtl8821cu
+
 # mt7921
-#rm -rf package/kernel/rtl8821cu
+
 #rm -rf package/kernel/mac80211
 #rm -rf package/kernel/mt76
 #rm -rf package/network/services/hostapd
