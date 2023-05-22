@@ -9,6 +9,7 @@ pushd package/community
 
 # Add luci-app-xunlei
 svn co https://github.com/gngpp/nas-xunlei/trunk/openwrt
+sed -i 's/xunlei-launcher/xunlei-launcher-patch/g' openwrt/xunlei/Makefile
 
 # Add luci-app-alist
 git clone --depth=1 https://github.com/sbwml/luci-app-alist
